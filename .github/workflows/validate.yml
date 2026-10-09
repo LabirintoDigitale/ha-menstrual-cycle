@@ -2,42 +2,74 @@ name: Validate
 
 on:
   push:
+    branches: [main]
+    tags: ['v*']
   pull_request:
+  schedule:
+    - cron: "0 0 * * *"
   workflow_dispatch:
+
+# The jobs only need to read repository contents.
+permissions:
+  contents: read
 
 jobs:
   hassfest:
+    name: Hassfest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: home-assistant/actions/hassfest@master
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Run hassfest
+        # Same pin as LabirintoDigitale/meshcore-bbs (2026-04-07 HEAD on master).
+        uses: home-assistant/actions/hassfest@f4ca6f671bd429efb108c0f2fa0ae8af0215986c
 
   hacs:
+    name: HACS
     runs-on: ubuntu-latest
     steps:
-      - uses: hacs/action@main
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Run HACS validation
+        # Same pin as LabirintoDigitale/meshcore-bbs (2026-01-26 HEAD on main).
+        uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
         with:
           category: integration
-          ignore: brands
 
   tests:
+    name: Prediction tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+
       - run: pip install pytest
       - run: pytest tests
 
   import:
+    # Hassfest and HACS don't execute the code: this job imports every
+    # module with Home Assistant installed, catching errors raised at import
+    # time (e.g. an invalid selector config in config_flow.py).
+    name: Import with Home Assistant
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
           python-version: "3.14"
+
       - run: pip install homeassistant
+
       - name: Import every module
         run: |
           python -c "
