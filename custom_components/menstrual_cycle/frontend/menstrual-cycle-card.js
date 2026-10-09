@@ -340,9 +340,30 @@ class MenstrualCycleCardEditor extends HTMLElement {
   }
 }
 
-if (!customElements.get(CARD_TYPE)) {
-  customElements.define(CARD_TYPE, MenstrualCycleCard);
-  customElements.define(`${CARD_TYPE}-editor`, MenstrualCycleCardEditor);
+/*
+ * Some other cards bundle a scoped custom element registry polyfill that
+ * replaces window.customElements with a new registry when they load. Elements
+ * defined before that are not in the new registry, so the dashboard can't
+ * find this card. Define the elements in whatever registry is current, and
+ * check again periodically in case it gets replaced after this file ran.
+ * A fresh subclass is used each time: a constructor can be defined only once.
+ */
+function defineElements() {
+  const registry = window.customElements;
+  try {
+    if (!registry.get(CARD_TYPE)) registry.define(CARD_TYPE, class extends MenstrualCycleCard {});
+    if (!registry.get(`${CARD_TYPE}-editor`)) {
+      registry.define(`${CARD_TYPE}-editor`, class extends MenstrualCycleCardEditor {});
+    }
+  } catch (err) {
+    console.warn("menstrual-cycle-card: could not define the card", err);
+  }
+}
+
+if (!window.__menstrualCycleCardLoaded) {
+  window.__menstrualCycleCardLoaded = true;
+  defineElements();
+  setInterval(defineElements, 1000);
 
   const t = strings(document.querySelector("home-assistant")?.hass);
   window.customCards = window.customCards || [];

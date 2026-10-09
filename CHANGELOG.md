@@ -4,6 +4,12 @@ All notable changes to **Menstrual Cycle for Home Assistant** are documented her
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-09
+
+### Fixed
+
+- **"Configuration error" instead of the cycle card** when another card (e.g. advanced-camera-card) loads a scoped custom element registry polyfill. The polyfill replaces `window.customElements`, dropping the cards defined before it. The card now defines itself in the current registry and checks again every second, so it is found whichever loads first.
+
 ## [0.2.0] - 2026-10-09
 
 ### Added
