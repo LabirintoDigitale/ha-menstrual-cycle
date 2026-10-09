@@ -35,15 +35,12 @@ from .const import (
 
 
 def _days(minimum: int, maximum: int, unit: str | None = "d") -> NumberSelector:
-    return NumberSelector(
-        NumberSelectorConfig(
-            min=minimum,
-            max=maximum,
-            step=1,
-            mode=NumberSelectorMode.BOX,
-            unit_of_measurement=unit,
-        )
+    config = NumberSelectorConfig(
+        min=minimum, max=maximum, step=1, mode=NumberSelectorMode.BOX
     )
+    if unit is not None:
+        config["unit_of_measurement"] = unit
+    return NumberSelector(config)
 
 
 SETTINGS_SCHEMA = vol.Schema(

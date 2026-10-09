@@ -29,3 +29,21 @@ jobs:
           python-version: "3.13"
       - run: pip install pytest
       - run: pytest tests
+
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install homeassistant
+      - name: Import every module
+        run: |
+          python -c "
+          import importlib, pkgutil
+          import custom_components.menstrual_cycle as pkg
+          for mod in pkgutil.iter_modules(pkg.__path__):
+              importlib.import_module(f'{pkg.__name__}.{mod.name}')
+              print('ok', mod.name)
+          "
