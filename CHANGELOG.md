@@ -4,6 +4,12 @@ All notable changes to **Menstrual Cycle for Home Assistant** are documented her
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-09
+
+### Changed
+
+- **The calendar is pink** in dashboards and in the Calendar panel (Home Assistant 2026.2+). New calendars get it as their initial colour; existing ones get it once, only if no colour was chosen. It can still be changed in the entity settings.
+
 ## [0.4.0] - 2026-10-09
 
 ### Added

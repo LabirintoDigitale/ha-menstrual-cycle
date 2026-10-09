@@ -11,8 +11,10 @@ from homeassistant.components.calendar import (
     CalendarEvent,
 )
 from homeassistant.components.calendar.const import EVENT_END, EVENT_START
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
 
@@ -21,6 +23,8 @@ from .coordinator import MenstrualCycleConfigEntry, MenstrualCycleCoordinator, t
 from .entity import MenstrualCycleEntity
 
 ONE_DAY = timedelta(days=1)
+CALENDAR_DOMAIN = Platform.CALENDAR.value
+CALENDAR_COLOR = "#E91E63"
 
 
 async def async_setup_entry(
@@ -45,10 +49,25 @@ class MenstrualCycleCalendar(MenstrualCycleEntity, CalendarEntity):
     _attr_supported_features = (
         CalendarEntityFeature.CREATE_EVENT | CalendarEntityFeature.DELETE_EVENT
     )
+    # Colour of the calendar in dashboards (Home Assistant 2026.2+), used when
+    # the entity is created; users can change it in the entity settings.
+    _attr_initial_color = CALENDAR_COLOR
 
     def __init__(self, coordinator: MenstrualCycleCoordinator) -> None:
         """Initialize the calendar."""
         super().__init__(coordinator, "calendar")
+
+    async def async_added_to_hass(self) -> None:
+        """Give the pink colour to calendars created before it existed."""
+        await super().async_added_to_hass()
+        registry = er.async_get(self.hass)
+        entry = registry.async_get(self.entity_id)
+        if entry is not None and not entry.options.get(CALENDAR_DOMAIN, {}).get("color"):
+            registry.async_update_entity_options(
+                self.entity_id,
+                CALENDAR_DOMAIN,
+                {**entry.options.get(CALENDAR_DOMAIN, {}), "color": CALENDAR_COLOR},
+            )
 
     def _labels(self) -> dict[str, str]:
         return EVENT_LABELS.get(self.hass.config.language[:2], EVENT_LABELS["en"])
