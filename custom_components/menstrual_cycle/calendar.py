@@ -16,7 +16,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, EVENT_LABELS, UID_PERIOD_PREFIX
+from .const import DOMAIN, EVENT_LABELS, UID_OVULATION_PREFIX, UID_PERIOD_PREFIX
 from .coordinator import MenstrualCycleConfigEntry, MenstrualCycleCoordinator, today
 from .entity import MenstrualCycleEntity
 
@@ -65,6 +65,15 @@ class MenstrualCycleCalendar(MenstrualCycleEntity, CalendarEntity):
             )
             for period in data.periods
         ]
+        events.extend(
+            CalendarEvent(
+                start=ovulation.estimated,
+                end=ovulation.estimated + ONE_DAY,
+                summary=labels["logged_ovulation"],
+                uid=f"{UID_OVULATION_PREFIX}{ovulation.observed.isoformat()}",
+            )
+            for ovulation in data.ovulations
+        )
         if (prediction := data.prediction) is not None:
             for cycle in (prediction.current_cycle, *prediction.upcoming):
                 if cycle is not prediction.current_cycle:
@@ -84,14 +93,15 @@ class MenstrualCycleCalendar(MenstrualCycleEntity, CalendarEntity):
                         description=labels["prediction"],
                     )
                 )
-                events.append(
-                    CalendarEvent(
-                        start=cycle.ovulation,
-                        end=cycle.ovulation + ONE_DAY,
-                        summary=labels["ovulation"],
-                        description=labels["prediction"],
+                if not cycle.ovulation_confirmed:
+                    events.append(
+                        CalendarEvent(
+                            start=cycle.ovulation,
+                            end=cycle.ovulation + ONE_DAY,
+                            summary=labels["ovulation"],
+                            description=labels["prediction"],
+                        )
                     )
-                )
         events.sort(key=lambda event: (event.start, event.end))
         return events
 
@@ -126,7 +136,12 @@ class MenstrualCycleCalendar(MenstrualCycleEntity, CalendarEntity):
         recurrence_id: str | None = None,
         recurrence_range: str | None = None,
     ) -> None:
-        """Delete a logged period; predictions can't be deleted."""
+        """Delete a logged period or ovulation; predictions can't be deleted."""
+        if uid.startswith(UID_OVULATION_PREFIX):
+            await self.coordinator.async_delete_ovulation(
+                date.fromisoformat(uid.removeprefix(UID_OVULATION_PREFIX))
+            )
+            return
         if not uid.startswith(UID_PERIOD_PREFIX):
             raise HomeAssistantError(
                 translation_domain=DOMAIN, translation_key="cannot_delete_prediction"

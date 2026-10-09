@@ -4,6 +4,15 @@ All notable changes to **Menstrual Cycle for Home Assistant** are documented her
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-09
+
+### Added
+
+- **Ovulation logging.** Buttons *Positive LH test today* and *Ovulation today*, actions `log_ovulation` (date and method: LH test, basal temperature rise, ultrasound, symptoms, other) and `delete_ovulation`. The method sets the estimated ovulation day (LH test +1 day, temperature rise −1 day). One ovulation per cycle; logged ovulations appear in the calendar and can be deleted there.
+- **Personal luteal phase.** Learnt from the cycles with a logged ovulation, shrunk towards the configured value while there are few of them. The ovulation is predicted as next period − personal luteal phase; once the current cycle's ovulation is logged, the next period is predicted from it.
+- **Variability-aware fertile window.** Widened by 1–3 days per side according to the standard deviation of the ovulation day (or of the cycle length, until 3 ovulations are logged).
+- **Statistics sensors** (with long-term statistics): luteal and follicular phase length, cycle length variability, ovulation day variability. *Average cycle length* lists the last 12 cycles in its `cycles` attribute; *Ovulation* reports whether it is confirmed and its variability.
+
 ## [0.2.1] - 2026-10-09
 
 ### Fixed

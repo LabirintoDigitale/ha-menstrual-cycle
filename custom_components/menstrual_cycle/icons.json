@@ -6,7 +6,9 @@
     },
     "button": {
       "period_started": { "default": "mdi:calendar-start" },
-      "period_ended": { "default": "mdi:calendar-end" }
+      "period_ended": { "default": "mdi:calendar-end" },
+      "lh_positive": { "default": "mdi:test-tube" },
+      "ovulation_today": { "default": "mdi:egg" }
     },
     "sensor": {
       "next_period": { "default": "mdi:calendar-heart" },
@@ -28,13 +30,19 @@
       "cycle_day": { "default": "mdi:counter" },
       "last_period": { "default": "mdi:calendar-check" },
       "average_cycle_length": { "default": "mdi:sync" },
-      "average_period_length": { "default": "mdi:timer-outline" }
+      "average_period_length": { "default": "mdi:timer-outline" },
+      "luteal_phase_length": { "default": "mdi:leaf" },
+      "follicular_phase_length": { "default": "mdi:sprout" },
+      "cycle_length_variability": { "default": "mdi:chart-bell-curve" },
+      "ovulation_variability": { "default": "mdi:chart-bell-curve-cumulative" }
     }
   },
   "services": {
     "log_period_start": { "service": "mdi:calendar-start" },
     "log_period_end": { "service": "mdi:calendar-end" },
     "add_period": { "service": "mdi:calendar-plus" },
-    "delete_period": { "service": "mdi:calendar-remove" }
+    "delete_period": { "service": "mdi:calendar-remove" },
+    "log_ovulation": { "service": "mdi:egg" },
+    "delete_ovulation": { "service": "mdi:egg-off" }
   }
 }

@@ -31,13 +31,17 @@ ATTR_CONFIG_ENTRY: Final = "config_entry"
 ATTR_DATE: Final = "date"
 ATTR_START: Final = "start"
 ATTR_END: Final = "end"
+ATTR_METHOD: Final = "method"
 
 SERVICE_LOG_PERIOD_START: Final = "log_period_start"
 SERVICE_LOG_PERIOD_END: Final = "log_period_end"
 SERVICE_ADD_PERIOD: Final = "add_period"
 SERVICE_DELETE_PERIOD: Final = "delete_period"
+SERVICE_LOG_OVULATION: Final = "log_ovulation"
+SERVICE_DELETE_OVULATION: Final = "delete_ovulation"
 
 UID_PERIOD_PREFIX: Final = "period-"
+UID_OVULATION_PREFIX: Final = "ovulation-"
 
 # Calendar event titles can't use translation files, so they live here.
 EVENT_LABELS: Final = {
@@ -46,6 +50,7 @@ EVENT_LABELS: Final = {
         "predicted_period": "Expected period",
         "fertile": "Fertile window",
         "ovulation": "Ovulation",
+        "logged_ovulation": "Ovulation (logged)",
         "prediction": "Estimate based on the logged cycles, not medical advice.",
     },
     "it": {
@@ -53,6 +58,7 @@ EVENT_LABELS: Final = {
         "predicted_period": "Ciclo previsto",
         "fertile": "Finestra fertile",
         "ovulation": "Ovulazione",
+        "logged_ovulation": "Ovulazione (registrata)",
         "prediction": "Stima basata sui cicli registrati, non è un parere medico.",
     },
 }

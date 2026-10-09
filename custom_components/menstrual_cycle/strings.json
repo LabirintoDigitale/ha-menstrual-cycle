@@ -17,7 +17,7 @@
           "last_period_start": "Optional. You can log more periods later from the calendar or with the services.",
           "cycle_length": "Used until at least two periods are logged.",
           "period_length": "Used until at least one period has an end date.",
-          "luteal_phase": "Days between ovulation and the next period, usually 14.",
+          "luteal_phase": "Days between ovulation and the next period, usually 14. Refined automatically with the logged ovulations.",
           "history_size": "How many recent cycles are averaged to predict the next one.",
           "forecast_cycles": "How many future cycles are shown in the calendar."
         }
@@ -58,7 +58,9 @@
     },
     "button": {
       "period_started": { "name": "Period started today" },
-      "period_ended": { "name": "Period ended today" }
+      "period_ended": { "name": "Period ended today" },
+      "lh_positive": { "name": "Positive LH test today" },
+      "ovulation_today": { "name": "Ovulation today" }
     },
     "sensor": {
       "next_period": { "name": "Next period" },
@@ -80,7 +82,22 @@
       "cycle_day": { "name": "Cycle day" },
       "last_period": { "name": "Last period" },
       "average_cycle_length": { "name": "Average cycle length" },
-      "average_period_length": { "name": "Average period length" }
+      "average_period_length": { "name": "Average period length" },
+      "luteal_phase_length": { "name": "Luteal phase length" },
+      "follicular_phase_length": { "name": "Follicular phase length" },
+      "cycle_length_variability": { "name": "Cycle length variability" },
+      "ovulation_variability": { "name": "Ovulation day variability" }
+    }
+  },
+  "selector": {
+    "ovulation_method": {
+      "options": {
+        "lh_test": "Positive LH test (ovulation the next day)",
+        "temperature": "Basal temperature rise (ovulation the day before)",
+        "ultrasound": "Ultrasound",
+        "symptoms": "Symptoms (mucus, pain)",
+        "other": "Other"
+      }
     }
   },
   "services": {
@@ -109,6 +126,23 @@
         "end": { "name": "Last day", "description": "Last day of the period, if known." }
       }
     },
+    "log_ovulation": {
+      "name": "Log ovulation",
+      "description": "Logs a sign of ovulation. It refines the personal luteal phase and the next predictions. Replaces any other ovulation logged in the same cycle.",
+      "fields": {
+        "config_entry": { "name": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::name%]", "description": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::description%]" },
+        "date": { "name": "Date", "description": "Day of the observation. Defaults to today." },
+        "method": { "name": "Method", "description": "How the ovulation was detected." }
+      }
+    },
+    "delete_ovulation": {
+      "name": "Delete ovulation",
+      "description": "Deletes a logged ovulation.",
+      "fields": {
+        "config_entry": { "name": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::name%]", "description": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::description%]" },
+        "date": { "name": "Date", "description": "Day the ovulation was logged on." }
+      }
+    },
     "delete_period": {
       "name": "Delete period",
       "description": "Deletes a logged period.",
@@ -124,7 +158,9 @@
     "period_too_long": { "message": "The period starting on {date} would last {max} days or more. Log a new period instead." },
     "invalid_period": { "message": "The last day must be on or after the first day and the period must last less than {max} days." },
     "period_not_found": { "message": "No period starts on {date}." },
-    "cannot_delete_prediction": { "message": "Predictions can't be deleted, only logged periods." },
+    "cannot_delete_prediction": { "message": "Predictions can't be deleted, only logged periods and ovulations." },
+    "no_period_for_ovulation": { "message": "Log the start of the period of this cycle before its ovulation." },
+    "ovulation_not_found": { "message": "No ovulation is logged on {date}." },
     "entry_not_found": { "message": "No menstrual cycle is set up." },
     "entry_required": { "message": "More than one cycle is set up: choose which one." }
   }

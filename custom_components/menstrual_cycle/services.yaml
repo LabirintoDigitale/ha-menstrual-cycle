@@ -32,6 +32,38 @@ add_period:
       selector:
         date:
 
+log_ovulation:
+  fields:
+    config_entry:
+      selector:
+        config_entry:
+          integration: menstrual_cycle
+    date:
+      selector:
+        date:
+    method:
+      default: other
+      selector:
+        select:
+          translation_key: ovulation_method
+          options:
+            - lh_test
+            - temperature
+            - ultrasound
+            - symptoms
+            - other
+
+delete_ovulation:
+  fields:
+    config_entry:
+      selector:
+        config_entry:
+          integration: menstrual_cycle
+    date:
+      required: true
+      selector:
+        date:
+
 delete_period:
   fields:
     config_entry:

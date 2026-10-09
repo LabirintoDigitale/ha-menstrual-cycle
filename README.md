@@ -15,16 +15,55 @@ Integrazione personalizzata che tiene un **calendario del ciclo mestruale** in H
 - **Calendario** con i cicli registrati, i cicli previsti, le finestre fertili e i giorni di ovulazione. Puoi aggiungere o eliminare un ciclo direttamente dalla scheda calendario.
 - **Sensori**: prossimo ciclo, giorni al prossimo ciclo, ovulazione, inizio e fine della finestra fertile, fase (mestruazioni, follicolare, fertile, ovulazione, luteale, in ritardo), giorno del ciclo, ultimo ciclo, durata media di ciclo e mestruazioni.
 - **Sensori binari**: *Mestruazioni* e *Finestra fertile*, comodi per le automazioni.
-- **Pulsanti**: *Ciclo iniziato oggi* e *Ciclo finito oggi*.
-- **Azioni**: `menstrual_cycle.log_period_start`, `log_period_end`, `add_period`, `delete_period`.
+- **Pulsanti**: *Ciclo iniziato oggi*, *Ciclo finito oggi*, *Test LH positivo oggi*, *Ovulazione oggi*.
+- **Azioni**: `menstrual_cycle.log_period_start`, `log_period_end`, `add_period`, `delete_period`, `log_ovulation`, `delete_ovulation`.
+- **Statistiche**: fase luteale e follicolare personali, variabilità del ciclo e dell'ovulazione, storico degli ultimi 12 cicli.
 - Interfaccia in italiano e inglese. I dati restano solo nel tuo Home Assistant.
 
 ## Come calcola le previsioni
 
 - **Durata del ciclo**: media degli ultimi N cicli registrati (6 di default). Gli intervalli fuori da 15–60 giorni vengono ignorati perché probabilmente manca una registrazione. Finché non ci sono almeno due cicli si usa la durata impostata.
-- **Prossimo ciclo**: inizio dell'ultimo ciclo + durata media.
-- **Ovulazione**: prossimo ciclo − fase luteale (14 giorni di default).
-- **Finestra fertile**: dai 5 giorni prima dell'ovulazione al giorno dopo.
+- **Prossimo ciclo**: inizio dell'ultimo ciclo + durata media. Se l'ovulazione del ciclo in corso è registrata: ovulazione + fase luteale personale, che è più preciso.
+- **Ovulazione**: prossimo ciclo − fase luteale personale.
+- **Finestra fertile**: dai 5 giorni prima dell'ovulazione al giorno dopo, allargata di 1–3 giorni per lato se i cicli passati sono irregolari.
+
+### Registrare l'ovulazione
+
+Oltre a inizio e fine ciclo puoi registrare l'ovulazione:
+
+- pulsante **Test LH positivo oggi**: l'ovulazione viene stimata il giorno dopo;
+- pulsante **Ovulazione oggi**: per ecografia, sintomi o quando sei sicura del giorno;
+- azione `menstrual_cycle.log_ovulation`, con data e metodo (test LH, rialzo della temperatura basale, ecografia, sintomi, altro), anche per i cicli passati.
+
+Ogni ciclo tiene una sola ovulazione: registrarne un'altra nello stesso ciclo la sostituisce. Le ovulazioni compaiono nel calendario e si possono eliminare da lì.
+
+### Perché migliora la previsione
+
+Il ciclo ha due fasi: la **follicolare** (dalle mestruazioni all'ovulazione) e la **luteale** (dall'ovulazione al ciclo successivo). Gli studi mostrano che la variabilità della durata del ciclo dipende soprattutto dalla fase follicolare, mentre quella luteale cambia meno nella stessa donna (in media circa 12–14 giorni, ma con differenze personali tra 7 e 17). Per questo l'integrazione:
+
+1. impara la **tua fase luteale** dai cicli con ovulazione registrata (luteale = inizio ciclo successivo − ovulazione). Parte dal valore impostato e si sposta verso la tua media man mano che i dati crescono, così un solo ciclo anomalo non stravolge tutto;
+2. prevede l'ovulazione **all'indietro** dal ciclo atteso: prossimo ciclo − fase luteale personale;
+3. quando l'ovulazione del ciclo in corso è registrata, prevede il ciclo successivo **in avanti** da lì, invece che dalla durata media;
+4. misura quanto varia il giorno dell'ovulazione (deviazione standard della fase follicolare, o della durata del ciclo finché non ci sono almeno 3 ovulazioni registrate) e **allarga la finestra fertile** di conseguenza.
+
+Cosa può spostare l'ovulazione da un ciclo all'altro: stress, malattie e febbre, viaggi e cambi di fuso, sonno scarso, attività fisica intensa, variazioni di peso, sospensione della contraccezione ormonale, allattamento, età (la fase follicolare si accorcia con gli anni), condizioni come PCOS o problemi alla tiroide. Il rialzo della temperatura basale conferma l'ovulazione solo dopo che è avvenuta; il test LH la anticipa di circa un giorno.
+
+### Statistiche e storico
+
+Sensori con statistiche a lungo termine, utilizzabili nei grafici di Home Assistant:
+
+- **Durata media del ciclo**, con l'attributo `cycles`: gli ultimi 12 cicli completi con durata, mestruazioni, data dell'ovulazione, fase follicolare e luteale;
+- **Durata media delle mestruazioni**;
+- **Durata fase luteale** (personale) e **Durata fase follicolare**;
+- **Variabilità del ciclo** e **Variabilità dell'ovulazione** (deviazione standard in giorni: più è bassa, più la previsione è affidabile).
+
+Il sensore **Ovulazione** ha gli attributi `confirmed` (ovulazione registrata), `variability_days` e `fertile_window_margin_days`.
+
+Fonti principali:
+
+- Bull J.R. et al., *Real-world menstrual cycle characteristics of more than 600,000 menstrual cycles*, npj Digital Medicine, 2019 ([PMC6710244](https://pmc.ncbi.nlm.nih.gov/articles/PMC6710244/)): fase follicolare media 16,9 giorni, luteale 12,4; la fase follicolare si accorcia con l'età.
+- Henry S. et al., *Prospective 1-year assessment of within-woman variability of follicular and luteal phase lengths*, Human Reproduction, 2024 ([articolo](https://academic.oup.com/humrep/article/39/11/2565/7775370)): la fase follicolare varia più di quella luteale, ma anche la luteale non è fissa.
+- Studio WHO sull'intervallo tra picco di LH e ovulazione (mediana circa 16–32 ore), citato in [Clearblue, *Evidence for using LH+1*](https://se.clearblue.com/sites/default/files/HCP_Publications/Articles-Pregnancy/Evidence_for_using_LH%2B1_as_marker_for_conception.pdf).
 
 ## Installazione
 
@@ -118,7 +157,9 @@ A custom integration that keeps a **menstrual cycle calendar** in Home Assistant
 
 It includes a **dashboard card** (`custom:menstrual-cycle-card`, listed in the card picker with a preview, no resource to add) showing a gauge of the cycle days with the period, the fertile window, ovulation and today. It also provides a calendar (logged and expected periods, fertile windows, ovulation; periods can be added or deleted from the calendar card), sensors (next period, days until next period, ovulation, fertile window start/end, phase, cycle day, last period, average cycle and period length), binary sensors (*Period*, *Fertile window*), buttons (*Period started today*, *Period ended today*) and the actions `menstrual_cycle.log_period_start`, `log_period_end`, `add_period` and `delete_period`.
 
-The cycle length is the average of the last N logged cycles (6 by default, gaps outside 15–60 days are ignored). Ovulation is estimated as the next period minus the luteal phase (14 days by default); the fertile window spans the 5 days before ovulation to the day after.
+The cycle length is the average of the last N logged cycles (6 by default, gaps outside 15–60 days are ignored). Ovulation is estimated as the next period minus the personal luteal phase; the fertile window spans the 5 days before ovulation to the day after, widened when past cycles are irregular.
+
+You can also log ovulation (buttons *Positive LH test today* and *Ovulation today*, or the `log_ovulation` action with date and method). Since the luteal phase varies less than the follicular phase within a woman, the logged ovulations are used to learn the personal luteal phase (shrunk towards the configured value while data is scarce); once the current cycle's ovulation is logged, the next period is predicted from it. Sensors expose the personal luteal and follicular phase, cycle and ovulation variability (standard deviation) and the last 12 cycles, with long-term statistics.
 
 Install via HACS as a custom repository (category *Integration*) or copy `custom_components/menstrual_cycle` into your `config/custom_components` folder, restart, then add **Menstrual Cycle** from *Settings → Devices & services*.
 

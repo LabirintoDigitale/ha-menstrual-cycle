@@ -17,7 +17,7 @@
           "last_period_start": "Facoltativo. Puoi registrare altri cicli più tardi dal calendario o con le azioni.",
           "cycle_length": "Usata finché non ci sono almeno due cicli registrati.",
           "period_length": "Usata finché nessun ciclo ha una data di fine.",
-          "luteal_phase": "Giorni tra l'ovulazione e il ciclo successivo, di solito 14.",
+          "luteal_phase": "Giorni tra l'ovulazione e il ciclo successivo, di solito 14. Si affina da sola con le ovulazioni registrate.",
           "history_size": "Quanti cicli recenti vengono mediati per prevedere il prossimo.",
           "forecast_cycles": "Quanti cicli futuri mostrare nel calendario."
         }
@@ -41,7 +41,7 @@
         "data_description": {
           "cycle_length": "Usata finché non ci sono almeno due cicli registrati.",
           "period_length": "Usata finché nessun ciclo ha una data di fine.",
-          "luteal_phase": "Giorni tra l'ovulazione e il ciclo successivo, di solito 14.",
+          "luteal_phase": "Giorni tra l'ovulazione e il ciclo successivo, di solito 14. Si affina da sola con le ovulazioni registrate.",
           "history_size": "Quanti cicli recenti vengono mediati per prevedere il prossimo.",
           "forecast_cycles": "Quanti cicli futuri mostrare nel calendario."
         }
@@ -58,7 +58,9 @@
     },
     "button": {
       "period_started": { "name": "Ciclo iniziato oggi" },
-      "period_ended": { "name": "Ciclo finito oggi" }
+      "period_ended": { "name": "Ciclo finito oggi" },
+      "lh_positive": { "name": "Test LH positivo oggi" },
+      "ovulation_today": { "name": "Ovulazione oggi" }
     },
     "sensor": {
       "next_period": { "name": "Prossimo ciclo" },
@@ -80,7 +82,22 @@
       "cycle_day": { "name": "Giorno del ciclo" },
       "last_period": { "name": "Ultimo ciclo" },
       "average_cycle_length": { "name": "Durata media del ciclo" },
-      "average_period_length": { "name": "Durata media delle mestruazioni" }
+      "average_period_length": { "name": "Durata media delle mestruazioni" },
+      "luteal_phase_length": { "name": "Durata fase luteale" },
+      "follicular_phase_length": { "name": "Durata fase follicolare" },
+      "cycle_length_variability": { "name": "Variabilità del ciclo" },
+      "ovulation_variability": { "name": "Variabilità dell'ovulazione" }
+    }
+  },
+  "selector": {
+    "ovulation_method": {
+      "options": {
+        "lh_test": "Test LH positivo (ovulazione il giorno dopo)",
+        "temperature": "Rialzo della temperatura basale (ovulazione il giorno prima)",
+        "ultrasound": "Ecografia",
+        "symptoms": "Sintomi (muco, dolore)",
+        "other": "Altro"
+      }
     }
   },
   "services": {
@@ -109,6 +126,23 @@
         "end": { "name": "Ultimo giorno", "description": "Ultimo giorno del ciclo, se noto." }
       }
     },
+    "log_ovulation": {
+      "name": "Registra ovulazione",
+      "description": "Registra un segno di ovulazione. Affina la fase luteale personale e le previsioni successive. Sostituisce un'eventuale altra ovulazione registrata nello stesso ciclo.",
+      "fields": {
+        "config_entry": { "name": "Ciclo", "description": "Serve solo se è configurato più di un ciclo." },
+        "date": { "name": "Data", "description": "Giorno dell'osservazione. Se omessa, oggi." },
+        "method": { "name": "Metodo", "description": "Come è stata rilevata l'ovulazione." }
+      }
+    },
+    "delete_ovulation": {
+      "name": "Elimina ovulazione",
+      "description": "Elimina un'ovulazione registrata.",
+      "fields": {
+        "config_entry": { "name": "Ciclo", "description": "Serve solo se è configurato più di un ciclo." },
+        "date": { "name": "Data", "description": "Giorno in cui è stata registrata l'ovulazione." }
+      }
+    },
     "delete_period": {
       "name": "Elimina ciclo",
       "description": "Elimina un ciclo registrato.",
@@ -124,7 +158,9 @@
     "period_too_long": { "message": "Il ciclo iniziato il {date} durerebbe {max} giorni o più. Registra invece un nuovo ciclo." },
     "invalid_period": { "message": "L'ultimo giorno deve essere uguale o successivo al primo e il ciclo deve durare meno di {max} giorni." },
     "period_not_found": { "message": "Nessun ciclo inizia il {date}." },
-    "cannot_delete_prediction": { "message": "Le previsioni non si possono eliminare, solo i cicli registrati." },
+    "cannot_delete_prediction": { "message": "Le previsioni non si possono eliminare, solo i cicli e le ovulazioni registrati." },
+    "no_period_for_ovulation": { "message": "Registra prima l'inizio del ciclo a cui appartiene questa ovulazione." },
+    "ovulation_not_found": { "message": "Nessuna ovulazione registrata il {date}." },
     "entry_not_found": { "message": "Nessun ciclo mestruale configurato." },
     "entry_required": { "message": "Ci sono più cicli configurati: scegli quale." }
   }

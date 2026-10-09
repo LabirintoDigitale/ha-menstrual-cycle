@@ -10,6 +10,7 @@ from homeassistant.components.button import ButtonEntity, ButtonEntityDescriptio
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
+from .calculator import OvulationMethod
 from .coordinator import MenstrualCycleConfigEntry, MenstrualCycleCoordinator, today
 from .entity import MenstrualCycleEntity
 
@@ -31,6 +32,16 @@ BUTTONS: tuple[MenstrualCycleButtonEntityDescription, ...] = (
         key="period_ended",
         translation_key="period_ended",
         press_fn=lambda c, day: c.async_log_period_end(day),
+    ),
+    MenstrualCycleButtonEntityDescription(
+        key="lh_positive",
+        translation_key="lh_positive",
+        press_fn=lambda c, day: c.async_log_ovulation(day, OvulationMethod.LH_TEST),
+    ),
+    MenstrualCycleButtonEntityDescription(
+        key="ovulation_today",
+        translation_key="ovulation_today",
+        press_fn=lambda c, day: c.async_log_ovulation(day, OvulationMethod.OTHER),
     ),
 )
 

@@ -9,14 +9,18 @@ from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 
+from .calculator import OvulationMethod
 from .const import (
     ATTR_CONFIG_ENTRY,
     ATTR_DATE,
     ATTR_END,
+    ATTR_METHOD,
     ATTR_START,
     DOMAIN,
     SERVICE_ADD_PERIOD,
+    SERVICE_DELETE_OVULATION,
     SERVICE_DELETE_PERIOD,
+    SERVICE_LOG_OVULATION,
     SERVICE_LOG_PERIOD_END,
     SERVICE_LOG_PERIOD_START,
 )
@@ -39,6 +43,15 @@ SCHEMA_ADD_PERIOD = vol.Schema(
         vol.Optional(ATTR_CONFIG_ENTRY): cv.string,
         vol.Required(ATTR_START): cv.date,
         vol.Optional(ATTR_END): cv.date,
+    }
+)
+SCHEMA_LOG_OVULATION = vol.Schema(
+    {
+        vol.Optional(ATTR_CONFIG_ENTRY): cv.string,
+        vol.Optional(ATTR_DATE): cv.date,
+        vol.Optional(ATTR_METHOD, default=OvulationMethod.OTHER.value): vol.In(
+            [method.value for method in OvulationMethod]
+        ),
     }
 )
 
@@ -89,6 +102,14 @@ def async_setup_services(hass: HomeAssistant) -> None:
     async def delete_period(call: ServiceCall) -> None:
         await _get_coordinator(hass, call).async_delete_period(call.data[ATTR_DATE])
 
+    async def log_ovulation(call: ServiceCall) -> None:
+        await _get_coordinator(hass, call).async_log_ovulation(
+            call.data.get(ATTR_DATE) or today(), OvulationMethod(call.data[ATTR_METHOD])
+        )
+
+    async def delete_ovulation(call: ServiceCall) -> None:
+        await _get_coordinator(hass, call).async_delete_ovulation(call.data[ATTR_DATE])
+
     hass.services.async_register(
         DOMAIN, SERVICE_LOG_PERIOD_START, log_period_start, schema=SCHEMA_OPTIONAL_DATE
     )
@@ -100,4 +121,10 @@ def async_setup_services(hass: HomeAssistant) -> None:
     )
     hass.services.async_register(
         DOMAIN, SERVICE_DELETE_PERIOD, delete_period, schema=SCHEMA_REQUIRED_DATE
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_LOG_OVULATION, log_ovulation, schema=SCHEMA_LOG_OVULATION
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_DELETE_OVULATION, delete_ovulation, schema=SCHEMA_REQUIRED_DATE
     )

@@ -11,6 +11,7 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
+    SensorStateClass,
 )
 from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
@@ -25,7 +26,7 @@ from .entity import MenstrualCycleEntity
 class MenstrualCycleSensorEntityDescription(SensorEntityDescription):
     """Describes a Menstrual Cycle sensor."""
 
-    value_fn: Callable[[Prediction], date | int | str]
+    value_fn: Callable[[Prediction], date | float | int | str | None]
     attributes_fn: Callable[[Prediction], dict[str, Any]] | None = None
 
 
@@ -43,9 +44,41 @@ def _cycle_attributes(prediction: Prediction) -> dict[str, Any]:
         "fertile_start_day": day(cycle.fertile_start),
         "ovulation_day": day(cycle.ovulation),
         "fertile_end_day": day(cycle.fertile_end),
+        "ovulation_confirmed": cycle.ovulation_confirmed,
         "phase": prediction.phase.value,
         "next_period": prediction.next_period_start.isoformat(),
         "days_until_next_period": prediction.days_until_next_period,
+    }
+
+
+def _ovulation_attributes(prediction: Prediction) -> dict[str, Any]:
+    """How the ovulation date was obtained and how uncertain it is."""
+    return {
+        "confirmed": prediction.next_ovulation_confirmed,
+        "variability_days": prediction.ovulation_sd,
+        "fertile_window_margin_days": 0
+        if prediction.next_ovulation_confirmed
+        else prediction.fertile_margin,
+        "luteal_phase_days": prediction.luteal_length,
+    }
+
+
+def _history_attributes(prediction: Prediction) -> dict[str, Any]:
+    """The recent completed cycles, for analysis."""
+    return {
+        "cycles_used": prediction.cycles_used,
+        "variability_days": prediction.cycle_length_sd,
+        "cycles": [
+            {
+                "start": record.start.isoformat(),
+                "length": record.length,
+                "period_length": record.period_length,
+                "ovulation": record.ovulation.isoformat() if record.ovulation else None,
+                "follicular_length": record.follicular_length,
+                "luteal_length": record.luteal_length,
+            }
+            for record in prediction.history
+        ],
     }
 
 
@@ -67,6 +100,7 @@ SENSORS: tuple[MenstrualCycleSensorEntityDescription, ...] = (
         translation_key="ovulation",
         device_class=SensorDeviceClass.DATE,
         value_fn=lambda p: p.next_ovulation,
+        attributes_fn=_ovulation_attributes,
     ),
     MenstrualCycleSensorEntityDescription(
         key="fertile_window_start",
@@ -103,13 +137,47 @@ SENSORS: tuple[MenstrualCycleSensorEntityDescription, ...] = (
         key="average_cycle_length",
         translation_key="average_cycle_length",
         native_unit_of_measurement=UnitOfTime.DAYS,
+        state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda p: p.cycle_length,
+        attributes_fn=_history_attributes,
     ),
     MenstrualCycleSensorEntityDescription(
         key="average_period_length",
         translation_key="average_period_length",
         native_unit_of_measurement=UnitOfTime.DAYS,
+        state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda p: p.period_length,
+    ),
+    MenstrualCycleSensorEntityDescription(
+        key="luteal_phase_length",
+        translation_key="luteal_phase_length",
+        native_unit_of_measurement=UnitOfTime.DAYS,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda p: p.luteal_length,
+        attributes_fn=lambda p: {"logged_ovulations": p.luteal_samples},
+    ),
+    MenstrualCycleSensorEntityDescription(
+        key="follicular_phase_length",
+        translation_key="follicular_phase_length",
+        native_unit_of_measurement=UnitOfTime.DAYS,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda p: p.follicular_length,
+    ),
+    MenstrualCycleSensorEntityDescription(
+        key="cycle_length_variability",
+        translation_key="cycle_length_variability",
+        native_unit_of_measurement=UnitOfTime.DAYS,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=lambda p: p.cycle_length_sd,
+    ),
+    MenstrualCycleSensorEntityDescription(
+        key="ovulation_variability",
+        translation_key="ovulation_variability",
+        native_unit_of_measurement=UnitOfTime.DAYS,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=lambda p: p.ovulation_sd,
     ),
 )
 
@@ -129,6 +197,9 @@ class MenstrualCycleSensor(MenstrualCycleEntity, SensorEntity):
     """A value derived from the cycle prediction."""
 
     entity_description: MenstrualCycleSensorEntityDescription
+    # The cycle history is already in the store: don't copy it into the
+    # recorder database at every state change.
+    _unrecorded_attributes = frozenset({"cycles"})
 
     def __init__(
         self,
@@ -140,7 +211,7 @@ class MenstrualCycleSensor(MenstrualCycleEntity, SensorEntity):
         self.entity_description = description
 
     @property
-    def native_value(self) -> date | int | str | None:
+    def native_value(self) -> date | float | int | str | None:
         """Return the value, or None until a period is logged."""
         if (prediction := self.coordinator.data.prediction) is None:
             return None
