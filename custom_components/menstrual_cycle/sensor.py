@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -25,6 +26,27 @@ class MenstrualCycleSensorEntityDescription(SensorEntityDescription):
     """Describes a Menstrual Cycle sensor."""
 
     value_fn: Callable[[Prediction], date | int | str]
+    attributes_fn: Callable[[Prediction], dict[str, Any]] | None = None
+
+
+def _cycle_attributes(prediction: Prediction) -> dict[str, Any]:
+    """Describe the current cycle as day numbers, for the dashboard card."""
+    cycle = prediction.current_cycle
+    start = prediction.last_period.start
+
+    def day(value: date) -> int:
+        return (value - start).days + 1
+
+    return {
+        "cycle_length": prediction.cycle_length,
+        "period_length": day(prediction.last_period.last_day(prediction.period_length)),
+        "fertile_start_day": day(cycle.fertile_start),
+        "ovulation_day": day(cycle.ovulation),
+        "fertile_end_day": day(cycle.fertile_end),
+        "phase": prediction.phase.value,
+        "next_period": prediction.next_period_start.isoformat(),
+        "days_until_next_period": prediction.days_until_next_period,
+    }
 
 
 SENSORS: tuple[MenstrualCycleSensorEntityDescription, ...] = (
@@ -69,6 +91,7 @@ SENSORS: tuple[MenstrualCycleSensorEntityDescription, ...] = (
         key="cycle_day",
         translation_key="cycle_day",
         value_fn=lambda p: p.cycle_day,
+        attributes_fn=_cycle_attributes,
     ),
     MenstrualCycleSensorEntityDescription(
         key="last_period",
@@ -122,3 +145,11 @@ class MenstrualCycleSensor(MenstrualCycleEntity, SensorEntity):
         if (prediction := self.coordinator.data.prediction) is None:
             return None
         return self.entity_description.value_fn(prediction)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Return extra attributes, if the sensor has any."""
+        attributes_fn = self.entity_description.attributes_fn
+        if attributes_fn is None or (prediction := self.coordinator.data.prediction) is None:
+            return None
+        return attributes_fn(prediction)

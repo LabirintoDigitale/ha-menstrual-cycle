@@ -4,6 +4,13 @@ All notable changes to **Menstrual Cycle for Home Assistant** are documented her
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-09
+
+### Added
+
+- **Cycle card for the dashboard** (`custom:menstrual-cycle-card`). A 270° gauge with one segment per day of the cycle: period days in red, the fertile window in pink, ovulation in dark pink, days past the expected length in amber, and a dot on today. The centre shows the cycle day and the phase, below it the next expected period. It is served and loaded by the integration (no dashboard resource to add), appears in the card picker with a preview and has a visual editor.
+- **Attributes on the "Cycle day" sensor** used by the card: `cycle_length`, `period_length`, `fertile_start_day`, `ovulation_day`, `fertile_end_day`, `phase`, `next_period`, `days_until_next_period`.
+
 ## [0.1.2] - 2026-10-09
 
 ### Added

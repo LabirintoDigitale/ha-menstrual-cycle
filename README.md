@@ -11,6 +11,7 @@ Integrazione personalizzata che tiene un **calendario del ciclo mestruale** in H
 
 ## Cosa offre
 
+- **Card per la dashboard** con un gauge dei giorni del ciclo: mestruazioni in rosso, finestra fertile in rosa, ovulazione in rosa scuro e un pallino sul giorno di oggi. È già inclusa nell'integrazione: non serve aggiungere risorse JavaScript.
 - **Calendario** con i cicli registrati, i cicli previsti, le finestre fertili e i giorni di ovulazione. Puoi aggiungere o eliminare un ciclo direttamente dalla scheda calendario.
 - **Sensori**: prossimo ciclo, giorni al prossimo ciclo, ovulazione, inizio e fine della finestra fertile, fase (mestruazioni, follicolare, fertile, ovulazione, luteale, in ritardo), giorno del ciclo, ultimo ciclo, durata media di ciclo e mestruazioni.
 - **Sensori binari**: *Mestruazioni* e *Finestra fertile*, comodi per le automazioni.
@@ -49,6 +50,20 @@ data:
   start: "2026-08-30"
   end: "2026-09-03"
 ```
+
+## Card del ciclo
+
+Modifica la dashboard → **Aggiungi card** → cerca **Ciclo mestruale** (o *Menstrual Cycle*): compare con l'anteprima e si configura dall'editor visuale. In YAML:
+
+```yaml
+type: custom:menstrual-cycle-card
+entity: sensor.ciclo_mestruale_giorno_del_ciclo
+name: Ciclo            # facoltativo
+show_next: true        # riga "Prossimo ciclo tra N giorni"
+show_legend: true      # legenda dei colori
+```
+
+La card legge gli attributi del sensore *Giorno del ciclo*. Toccandola si apre il dettaglio del sensore.
 
 ## Esempi
 
@@ -101,7 +116,7 @@ A custom integration that keeps a **menstrual cycle calendar** in Home Assistant
 
 > **Warning:** predictions are statistical estimates based on the logged cycles. They are not medical advice and **must not be used as contraception**.
 
-It provides a calendar (logged and expected periods, fertile windows, ovulation; periods can be added or deleted from the calendar card), sensors (next period, days until next period, ovulation, fertile window start/end, phase, cycle day, last period, average cycle and period length), binary sensors (*Period*, *Fertile window*), buttons (*Period started today*, *Period ended today*) and the actions `menstrual_cycle.log_period_start`, `log_period_end`, `add_period` and `delete_period`.
+It includes a **dashboard card** (`custom:menstrual-cycle-card`, listed in the card picker with a preview, no resource to add) showing a gauge of the cycle days with the period, the fertile window, ovulation and today. It also provides a calendar (logged and expected periods, fertile windows, ovulation; periods can be added or deleted from the calendar card), sensors (next period, days until next period, ovulation, fertile window start/end, phase, cycle day, last period, average cycle and period length), binary sensors (*Period*, *Fertile window*), buttons (*Period started today*, *Period ended today*) and the actions `menstrual_cycle.log_period_start`, `log_period_end`, `add_period` and `delete_period`.
 
 The cycle length is the average of the last N logged cycles (6 by default, gaps outside 15–60 days are ignored). Ovulation is estimated as the next period minus the luteal phase (14 days by default); the fertile window spans the 5 days before ovulation to the day after.
 

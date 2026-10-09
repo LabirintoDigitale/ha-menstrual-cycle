@@ -8,6 +8,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 
+from .card import async_register_card
 from .const import DOMAIN, STORAGE_VERSION
 from .coordinator import MenstrualCycleConfigEntry, MenstrualCycleCoordinator, storage_key
 from .services import async_setup_services
@@ -18,8 +19,9 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the integration services."""
+    """Set up the integration services and the dashboard card."""
     async_setup_services(hass)
+    await async_register_card(hass)
     return True
 
 
