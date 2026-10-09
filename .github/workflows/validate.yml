@@ -23,7 +23,7 @@ jobs:
 
       - name: Run hassfest
         # Same pin as LabirintoDigitale/meshcore-bbs (2026-04-07 HEAD on master).
-        uses: home-assistant/actions/hassfest@f4ca6f671bd429efb108c0f2fa0ae8af0215986c
+        uses: home-assistant/actions/hassfest@06749dd8c0b54f350bc69c8752456cee498808a3
 
   hacs:
     name: HACS
