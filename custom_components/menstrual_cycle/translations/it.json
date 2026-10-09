@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ciclo mestruale",
+        "description": "Le previsioni sono stime basate sui cicli registrati. Non sono un parere medico e non vanno usate come metodo contraccettivo.",
+        "data": {
+          "name": "Nome",
+          "last_period_start": "Primo giorno dell'ultimo ciclo",
+          "cycle_length": "Durata abituale del ciclo",
+          "period_length": "Durata abituale delle mestruazioni",
+          "luteal_phase": "Durata della fase luteale",
+          "history_size": "Cicli usati per la media",
+          "forecast_cycles": "Cicli da prevedere"
+        },
+        "data_description": {
+          "last_period_start": "Facoltativo. Puoi registrare altri cicli più tardi dal calendario o con le azioni.",
+          "cycle_length": "Usata finché non ci sono almeno due cicli registrati.",
+          "period_length": "Usata finché nessun ciclo ha una data di fine.",
+          "luteal_phase": "Giorni tra l'ovulazione e il ciclo successivo, di solito 14.",
+          "history_size": "Quanti cicli recenti vengono mediati per prevedere il prossimo.",
+          "forecast_cycles": "Quanti cicli futuri mostrare nel calendario."
+        }
+      }
+    },
+    "error": {
+      "luteal_too_long": "La fase luteale deve essere più corta del ciclo."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Impostazioni del ciclo",
+        "data": {
+          "cycle_length": "Durata abituale del ciclo",
+          "period_length": "Durata abituale delle mestruazioni",
+          "luteal_phase": "Durata della fase luteale",
+          "history_size": "Cicli usati per la media",
+          "forecast_cycles": "Cicli da prevedere"
+        },
+        "data_description": {
+          "cycle_length": "Usata finché non ci sono almeno due cicli registrati.",
+          "period_length": "Usata finché nessun ciclo ha una data di fine.",
+          "luteal_phase": "Giorni tra l'ovulazione e il ciclo successivo, di solito 14.",
+          "history_size": "Quanti cicli recenti vengono mediati per prevedere il prossimo.",
+          "forecast_cycles": "Quanti cicli futuri mostrare nel calendario."
+        }
+      }
+    },
+    "error": {
+      "luteal_too_long": "La fase luteale deve essere più corta del ciclo."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "period": { "name": "Mestruazioni" },
+      "fertile": { "name": "Finestra fertile" }
+    },
+    "button": {
+      "period_started": { "name": "Ciclo iniziato oggi" },
+      "period_ended": { "name": "Ciclo finito oggi" }
+    },
+    "sensor": {
+      "next_period": { "name": "Prossimo ciclo" },
+      "days_until_next_period": { "name": "Giorni al prossimo ciclo" },
+      "ovulation": { "name": "Ovulazione" },
+      "fertile_window_start": { "name": "Inizio finestra fertile" },
+      "fertile_window_end": { "name": "Fine finestra fertile" },
+      "phase": {
+        "name": "Fase",
+        "state": {
+          "menstruation": "Mestruazioni",
+          "follicular": "Follicolare",
+          "fertile": "Fertile",
+          "ovulation": "Ovulazione",
+          "luteal": "Luteale",
+          "late": "In ritardo"
+        }
+      },
+      "cycle_day": { "name": "Giorno del ciclo" },
+      "last_period": { "name": "Ultimo ciclo" },
+      "average_cycle_length": { "name": "Durata media del ciclo" },
+      "average_period_length": { "name": "Durata media delle mestruazioni" }
+    }
+  },
+  "services": {
+    "log_period_start": {
+      "name": "Registra inizio ciclo",
+      "description": "Registra il primo giorno di un ciclo.",
+      "fields": {
+        "config_entry": { "name": "Ciclo", "description": "Serve solo se è configurato più di un ciclo." },
+        "date": { "name": "Data", "description": "Se omessa, oggi." }
+      }
+    },
+    "log_period_end": {
+      "name": "Registra fine ciclo",
+      "description": "Registra l'ultimo giorno del ciclo più recente.",
+      "fields": {
+        "config_entry": { "name": "Ciclo", "description": "Serve solo se è configurato più di un ciclo." },
+        "date": { "name": "Data", "description": "Se omessa, oggi." }
+      }
+    },
+    "add_period": {
+      "name": "Aggiungi ciclo",
+      "description": "Registra un ciclo intero, per esempio uno passato.",
+      "fields": {
+        "config_entry": { "name": "Ciclo", "description": "Serve solo se è configurato più di un ciclo." },
+        "start": { "name": "Primo giorno", "description": "Primo giorno del ciclo." },
+        "end": { "name": "Ultimo giorno", "description": "Ultimo giorno del ciclo, se noto." }
+      }
+    },
+    "delete_period": {
+      "name": "Elimina ciclo",
+      "description": "Elimina un ciclo registrato.",
+      "fields": {
+        "config_entry": { "name": "Ciclo", "description": "Serve solo se è configurato più di un ciclo." },
+        "date": { "name": "Primo giorno", "description": "Primo giorno del ciclo da eliminare." }
+      }
+    }
+  },
+  "exceptions": {
+    "period_overlaps": { "message": "Si sovrappone al ciclo iniziato il {date}." },
+    "no_period_to_end": { "message": "Nessun ciclo inizia in questa data o prima." },
+    "period_too_long": { "message": "Il ciclo iniziato il {date} durerebbe {max} giorni o più. Registra invece un nuovo ciclo." },
+    "invalid_period": { "message": "L'ultimo giorno deve essere uguale o successivo al primo e il ciclo deve durare meno di {max} giorni." },
+    "period_not_found": { "message": "Nessun ciclo inizia il {date}." },
+    "cannot_delete_prediction": { "message": "Le previsioni non si possono eliminare, solo i cicli registrati." },
+    "entry_not_found": { "message": "Nessun ciclo mestruale configurato." },
+    "entry_required": { "message": "Ci sono più cicli configurati: scegli quale." }
+  }
+}

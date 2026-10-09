@@ -1,0 +1,131 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Menstrual cycle",
+        "description": "Predictions are estimates based on the logged cycles. They are not medical advice and must not be used as contraception.",
+        "data": {
+          "name": "Name",
+          "last_period_start": "First day of the last period",
+          "cycle_length": "Usual cycle length",
+          "period_length": "Usual period length",
+          "luteal_phase": "Luteal phase length",
+          "history_size": "Cycles used for the average",
+          "forecast_cycles": "Cycles to forecast"
+        },
+        "data_description": {
+          "last_period_start": "Optional. You can log more periods later from the calendar or with the services.",
+          "cycle_length": "Used until at least two periods are logged.",
+          "period_length": "Used until at least one period has an end date.",
+          "luteal_phase": "Days between ovulation and the next period, usually 14.",
+          "history_size": "How many recent cycles are averaged to predict the next one.",
+          "forecast_cycles": "How many future cycles are shown in the calendar."
+        }
+      }
+    },
+    "error": {
+      "luteal_too_long": "The luteal phase must be shorter than the cycle."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Cycle settings",
+        "data": {
+          "cycle_length": "[%key:component::menstrual_cycle::config::step::user::data::cycle_length%]",
+          "period_length": "[%key:component::menstrual_cycle::config::step::user::data::period_length%]",
+          "luteal_phase": "[%key:component::menstrual_cycle::config::step::user::data::luteal_phase%]",
+          "history_size": "[%key:component::menstrual_cycle::config::step::user::data::history_size%]",
+          "forecast_cycles": "[%key:component::menstrual_cycle::config::step::user::data::forecast_cycles%]"
+        },
+        "data_description": {
+          "cycle_length": "[%key:component::menstrual_cycle::config::step::user::data_description::cycle_length%]",
+          "period_length": "[%key:component::menstrual_cycle::config::step::user::data_description::period_length%]",
+          "luteal_phase": "[%key:component::menstrual_cycle::config::step::user::data_description::luteal_phase%]",
+          "history_size": "[%key:component::menstrual_cycle::config::step::user::data_description::history_size%]",
+          "forecast_cycles": "[%key:component::menstrual_cycle::config::step::user::data_description::forecast_cycles%]"
+        }
+      }
+    },
+    "error": {
+      "luteal_too_long": "[%key:component::menstrual_cycle::config::error::luteal_too_long%]"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "period": { "name": "Period" },
+      "fertile": { "name": "Fertile window" }
+    },
+    "button": {
+      "period_started": { "name": "Period started today" },
+      "period_ended": { "name": "Period ended today" }
+    },
+    "sensor": {
+      "next_period": { "name": "Next period" },
+      "days_until_next_period": { "name": "Days until next period" },
+      "ovulation": { "name": "Ovulation" },
+      "fertile_window_start": { "name": "Fertile window start" },
+      "fertile_window_end": { "name": "Fertile window end" },
+      "phase": {
+        "name": "Phase",
+        "state": {
+          "menstruation": "Menstruation",
+          "follicular": "Follicular",
+          "fertile": "Fertile",
+          "ovulation": "Ovulation",
+          "luteal": "Luteal",
+          "late": "Late"
+        }
+      },
+      "cycle_day": { "name": "Cycle day" },
+      "last_period": { "name": "Last period" },
+      "average_cycle_length": { "name": "Average cycle length" },
+      "average_period_length": { "name": "Average period length" }
+    }
+  },
+  "services": {
+    "log_period_start": {
+      "name": "Log period start",
+      "description": "Logs the first day of a period.",
+      "fields": {
+        "config_entry": { "name": "Cycle", "description": "Needed only if more than one cycle is configured." },
+        "date": { "name": "Date", "description": "Defaults to today." }
+      }
+    },
+    "log_period_end": {
+      "name": "Log period end",
+      "description": "Logs the last day of the most recent period.",
+      "fields": {
+        "config_entry": { "name": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::name%]", "description": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::description%]" },
+        "date": { "name": "[%key:component::menstrual_cycle::services::log_period_start::fields::date::name%]", "description": "[%key:component::menstrual_cycle::services::log_period_start::fields::date::description%]" }
+      }
+    },
+    "add_period": {
+      "name": "Add period",
+      "description": "Logs a whole period, for example a past one.",
+      "fields": {
+        "config_entry": { "name": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::name%]", "description": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::description%]" },
+        "start": { "name": "First day", "description": "First day of the period." },
+        "end": { "name": "Last day", "description": "Last day of the period, if known." }
+      }
+    },
+    "delete_period": {
+      "name": "Delete period",
+      "description": "Deletes a logged period.",
+      "fields": {
+        "config_entry": { "name": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::name%]", "description": "[%key:component::menstrual_cycle::services::log_period_start::fields::config_entry::description%]" },
+        "date": { "name": "First day", "description": "First day of the period to delete." }
+      }
+    }
+  },
+  "exceptions": {
+    "period_overlaps": { "message": "This overlaps the period starting on {date}." },
+    "no_period_to_end": { "message": "No period starts on or before this date." },
+    "period_too_long": { "message": "The period starting on {date} would last {max} days or more. Log a new period instead." },
+    "invalid_period": { "message": "The last day must be on or after the first day and the period must last less than {max} days." },
+    "period_not_found": { "message": "No period starts on {date}." },
+    "cannot_delete_prediction": { "message": "Predictions can't be deleted, only logged periods." },
+    "entry_not_found": { "message": "No menstrual cycle is set up." },
+    "entry_required": { "message": "More than one cycle is set up: choose which one." }
+  }
+}

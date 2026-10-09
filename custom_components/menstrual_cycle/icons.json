@@ -1,0 +1,40 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "period": { "default": "mdi:water-off-outline", "state": { "on": "mdi:water" } },
+      "fertile": { "default": "mdi:flower-outline", "state": { "on": "mdi:flower" } }
+    },
+    "button": {
+      "period_started": { "default": "mdi:calendar-start" },
+      "period_ended": { "default": "mdi:calendar-end" }
+    },
+    "sensor": {
+      "next_period": { "default": "mdi:calendar-heart" },
+      "days_until_next_period": { "default": "mdi:calendar-clock" },
+      "ovulation": { "default": "mdi:egg-outline" },
+      "fertile_window_start": { "default": "mdi:flower-outline" },
+      "fertile_window_end": { "default": "mdi:flower-outline" },
+      "phase": {
+        "default": "mdi:moon-waning-crescent",
+        "state": {
+          "menstruation": "mdi:water",
+          "follicular": "mdi:sprout",
+          "fertile": "mdi:flower",
+          "ovulation": "mdi:egg",
+          "luteal": "mdi:leaf",
+          "late": "mdi:calendar-alert"
+        }
+      },
+      "cycle_day": { "default": "mdi:counter" },
+      "last_period": { "default": "mdi:calendar-check" },
+      "average_cycle_length": { "default": "mdi:sync" },
+      "average_period_length": { "default": "mdi:timer-outline" }
+    }
+  },
+  "services": {
+    "log_period_start": { "service": "mdi:calendar-start" },
+    "log_period_end": { "service": "mdi:calendar-end" },
+    "add_period": { "service": "mdi:calendar-plus" },
+    "delete_period": { "service": "mdi:calendar-remove" }
+  }
+}

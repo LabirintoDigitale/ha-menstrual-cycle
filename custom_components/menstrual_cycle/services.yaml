@@ -1,0 +1,44 @@
+log_period_start:
+  fields:
+    config_entry:
+      selector:
+        config_entry:
+          integration: menstrual_cycle
+    date:
+      selector:
+        date:
+
+log_period_end:
+  fields:
+    config_entry:
+      selector:
+        config_entry:
+          integration: menstrual_cycle
+    date:
+      selector:
+        date:
+
+add_period:
+  fields:
+    config_entry:
+      selector:
+        config_entry:
+          integration: menstrual_cycle
+    start:
+      required: true
+      selector:
+        date:
+    end:
+      selector:
+        date:
+
+delete_period:
+  fields:
+    config_entry:
+      selector:
+        config_entry:
+          integration: menstrual_cycle
+    date:
+      required: true
+      selector:
+        date:
