@@ -134,6 +134,7 @@ def test_late_period():
 def test_ovulation_method_offsets():
     day = date(2026, 10, 14)
     assert Ovulation(day, Method.LH_TEST).estimated == date(2026, 10, 15)
+    assert Ovulation(day, Method.LH_PEAK).estimated == day
     assert Ovulation(day, Method.TEMPERATURE).estimated == date(2026, 10, 13)
     assert Ovulation(day, Method.SYMPTOMS).estimated == day
 

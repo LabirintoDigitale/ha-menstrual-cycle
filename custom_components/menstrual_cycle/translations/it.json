@@ -59,8 +59,8 @@
     "button": {
       "period_started": { "name": "Ciclo iniziato oggi" },
       "period_ended": { "name": "Ciclo finito oggi" },
-      "lh_positive": { "name": "Test LH positivo oggi" },
-      "ovulation_today": { "name": "Ovulazione oggi" }
+      "lh_positive": { "name": "Ovulazione (test positivo)" },
+      "lh_peak": { "name": "Picco ovulazione (test)" }
     },
     "sensor": {
       "next_period": { "name": "Prossimo ciclo" },
@@ -92,7 +92,8 @@
   "selector": {
     "ovulation_method": {
       "options": {
-        "lh_test": "Test LH positivo (ovulazione il giorno dopo)",
+        "lh_test": "Test di ovulazione positivo, LH in aumento (ovulazione il giorno dopo)",
+        "lh_peak": "Test di ovulazione al picco, picco di LH (ovulazione lo stesso giorno)",
         "temperature": "Rialzo della temperatura basale (ovulazione il giorno prima)",
         "ultrasound": "Ecografia",
         "symptoms": "Sintomi (muco, dolore)",

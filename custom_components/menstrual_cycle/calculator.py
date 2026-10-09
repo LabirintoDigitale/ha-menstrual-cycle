@@ -65,6 +65,7 @@ class OvulationMethod(StrEnum):
     """How an ovulation was detected."""
 
     LH_TEST = "lh_test"
+    LH_PEAK = "lh_peak"
     TEMPERATURE = "temperature"
     ULTRASOUND = "ultrasound"
     SYMPTOMS = "symptoms"
@@ -72,10 +73,12 @@ class OvulationMethod(StrEnum):
 
 
 # Days from the logged observation to the estimated ovulation:
-# - ovulation follows the first positive LH test by about one day;
+# - ovulation follows the start of the LH rise (first positive test) by
+#   about 32 hours, and the LH peak by about 16 hours (WHO data);
 # - the basal temperature rises the day after ovulation.
 OVULATION_OFFSET = {
     OvulationMethod.LH_TEST: 1,
+    OvulationMethod.LH_PEAK: 0,
     OvulationMethod.TEMPERATURE: -1,
     OvulationMethod.ULTRASOUND: 0,
     OvulationMethod.SYMPTOMS: 0,

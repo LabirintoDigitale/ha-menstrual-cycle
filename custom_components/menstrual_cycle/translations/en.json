@@ -59,8 +59,8 @@
     "button": {
       "period_started": { "name": "Period started today" },
       "period_ended": { "name": "Period ended today" },
-      "lh_positive": { "name": "Positive LH test today" },
-      "ovulation_today": { "name": "Ovulation today" }
+      "lh_positive": { "name": "Ovulation (positive test)" },
+      "lh_peak": { "name": "Ovulation peak (test)" }
     },
     "sensor": {
       "next_period": { "name": "Next period" },
@@ -92,7 +92,8 @@
   "selector": {
     "ovulation_method": {
       "options": {
-        "lh_test": "Positive LH test (ovulation the next day)",
+        "lh_test": "Positive ovulation test, LH rising (ovulation the next day)",
+        "lh_peak": "Ovulation test at peak, LH peak (ovulation the same day)",
         "temperature": "Basal temperature rise (ovulation the day before)",
         "ultrasound": "Ultrasound",
         "symptoms": "Symptoms (mucus, pain)",

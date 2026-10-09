@@ -7,10 +7,13 @@ from dataclasses import dataclass
 from datetime import date
 
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .calculator import OvulationMethod
+from .const import DOMAIN
 from .coordinator import MenstrualCycleConfigEntry, MenstrualCycleCoordinator, today
 from .entity import MenstrualCycleEntity
 
@@ -39,11 +42,14 @@ BUTTONS: tuple[MenstrualCycleButtonEntityDescription, ...] = (
         press_fn=lambda c, day: c.async_log_ovulation(day, OvulationMethod.LH_TEST),
     ),
     MenstrualCycleButtonEntityDescription(
-        key="ovulation_today",
-        translation_key="ovulation_today",
-        press_fn=lambda c, day: c.async_log_ovulation(day, OvulationMethod.OTHER),
+        key="lh_peak",
+        translation_key="lh_peak",
+        press_fn=lambda c, day: c.async_log_ovulation(day, OvulationMethod.LH_PEAK),
     ),
 )
+
+# Buttons of earlier versions, removed from the entity registry.
+REMOVED_BUTTONS = ("ovulation_today",)
 
 
 async def async_setup_entry(
@@ -52,13 +58,20 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the buttons."""
+    registry = er.async_get(hass)
+    for key in REMOVED_BUTTONS:
+        if entity_id := registry.async_get_entity_id(
+            Platform.BUTTON, DOMAIN, f"{entry.entry_id}_{key}"
+        ):
+            registry.async_remove(entity_id)
+
     async_add_entities(
         MenstrualCycleButton(entry.runtime_data, description) for description in BUTTONS
     )
 
 
 class MenstrualCycleButton(MenstrualCycleEntity, ButtonEntity):
-    """Logs today as the start or end of a period."""
+    """Logs today as the start or end of a period, or an ovulation test."""
 
     entity_description: MenstrualCycleButtonEntityDescription
 

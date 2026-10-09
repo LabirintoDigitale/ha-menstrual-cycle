@@ -48,6 +48,7 @@ log_ovulation:
           translation_key: ovulation_method
           options:
             - lh_test
+            - lh_peak
             - temperature
             - ultrasound
             - symptoms

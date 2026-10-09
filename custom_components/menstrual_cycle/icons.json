@@ -7,8 +7,8 @@
     "button": {
       "period_started": { "default": "mdi:calendar-start" },
       "period_ended": { "default": "mdi:calendar-end" },
-      "lh_positive": { "default": "mdi:test-tube" },
-      "ovulation_today": { "default": "mdi:egg" }
+      "lh_positive": { "default": "mdi:egg-outline" },
+      "lh_peak": { "default": "mdi:egg" }
     },
     "sensor": {
       "next_period": { "default": "mdi:calendar-heart" },

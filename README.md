@@ -15,7 +15,7 @@ Integrazione personalizzata che tiene un **calendario del ciclo mestruale** in H
 - **Calendario** con i cicli registrati, i cicli previsti, le finestre fertili e i giorni di ovulazione. Puoi aggiungere o eliminare un ciclo direttamente dalla scheda calendario.
 - **Sensori**: prossimo ciclo, giorni al prossimo ciclo, ovulazione, inizio e fine della finestra fertile, fase (mestruazioni, follicolare, fertile, ovulazione, luteale, in ritardo), giorno del ciclo, ultimo ciclo, durata media di ciclo e mestruazioni.
 - **Sensori binari**: *Mestruazioni* e *Finestra fertile*, comodi per le automazioni.
-- **Pulsanti**: *Ciclo iniziato oggi*, *Ciclo finito oggi*, *Test LH positivo oggi*, *Ovulazione oggi*.
+- **Pulsanti**: *Ciclo iniziato oggi*, *Ciclo finito oggi*, *Ovulazione (test positivo)*, *Picco ovulazione (test)*.
 - **Azioni**: `menstrual_cycle.log_period_start`, `log_period_end`, `add_period`, `delete_period`, `log_ovulation`, `delete_ovulation`.
 - **Statistiche**: fase luteale e follicolare personali, variabilità del ciclo e dell'ovulazione, storico degli ultimi 12 cicli.
 - Interfaccia in italiano e inglese. I dati restano solo nel tuo Home Assistant.
@@ -31,11 +31,11 @@ Integrazione personalizzata che tiene un **calendario del ciclo mestruale** in H
 
 Oltre a inizio e fine ciclo puoi registrare l'ovulazione:
 
-- pulsante **Test LH positivo oggi**: l'ovulazione viene stimata il giorno dopo;
-- pulsante **Ovulazione oggi**: per ecografia, sintomi o quando sei sicura del giorno;
-- azione `menstrual_cycle.log_ovulation`, con data e metodo (test LH, rialzo della temperatura basale, ecografia, sintomi, altro), anche per i cicli passati.
+- pulsante **Ovulazione (test positivo)**: il test di ovulazione rileva l'LH in aumento. L'ovulazione arriva circa 32 ore dopo l'inizio del rialzo, quindi viene stimata **il giorno dopo**;
+- pulsante **Picco ovulazione (test)**: il test segna il picco dell'LH. L'ovulazione segue il picco di circa 16 ore, quindi viene stimata **lo stesso giorno**;
+- azione `menstrual_cycle.log_ovulation`, con data e metodo (test positivo, test al picco, rialzo della temperatura basale, ecografia, sintomi, altro), anche per i cicli passati.
 
-Ogni ciclo tiene una sola ovulazione: registrarne un'altra nello stesso ciclo la sostituisce. Le ovulazioni compaiono nel calendario e si possono eliminare da lì.
+Ogni ciclo tiene una sola ovulazione: registrarne un'altra nello stesso ciclo la sostituisce. Se premi prima *Ovulazione* e poi *Picco ovulazione*, vale il picco, che è più preciso. Le ovulazioni compaiono nel calendario e si possono eliminare da lì.
 
 ### Perché migliora la previsione
 
@@ -159,7 +159,7 @@ It includes a **dashboard card** (`custom:menstrual-cycle-card`, listed in the c
 
 The cycle length is the average of the last N logged cycles (6 by default, gaps outside 15–60 days are ignored). Ovulation is estimated as the next period minus the personal luteal phase; the fertile window spans the 5 days before ovulation to the day after, widened when past cycles are irregular.
 
-You can also log ovulation (buttons *Positive LH test today* and *Ovulation today*, or the `log_ovulation` action with date and method). Since the luteal phase varies less than the follicular phase within a woman, the logged ovulations are used to learn the personal luteal phase (shrunk towards the configured value while data is scarce); once the current cycle's ovulation is logged, the next period is predicted from it. Sensors expose the personal luteal and follicular phase, cycle and ovulation variability (standard deviation) and the last 12 cycles, with long-term statistics.
+You can also log ovulation (buttons *Ovulation (positive test)*, estimated the next day, and *Ovulation peak (test)*, estimated the same day, or the `log_ovulation` action with date and method). Since the luteal phase varies less than the follicular phase within a woman, the logged ovulations are used to learn the personal luteal phase (shrunk towards the configured value while data is scarce); once the current cycle's ovulation is logged, the next period is predicted from it. Sensors expose the personal luteal and follicular phase, cycle and ovulation variability (standard deviation) and the last 12 cycles, with long-term statistics.
 
 Install via HACS as a custom repository (category *Integration*) or copy `custom_components/menstrual_cycle` into your `config/custom_components` folder, restart, then add **Menstrual Cycle** from *Settings → Devices & services*.
 

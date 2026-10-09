@@ -4,6 +4,20 @@ All notable changes to **Menstrual Cycle for Home Assistant** are documented her
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-09
+
+### Added
+
+- **"Ovulation peak (test)" button** and `lh_peak` method for `log_ovulation`: the ovulation test shows the LH peak, ovulation is estimated the same day (it follows the peak by about 16 hours).
+
+### Changed
+
+- **"Positive LH test today" renamed "Ovulation (positive test)"**: LH rising, ovulation estimated the next day, as before.
+
+### Removed
+
+- **"Ovulation today" button** (ovulation without a test). It is removed from the entity registry on update; the `log_ovulation` action still accepts ultrasound, symptoms and other methods.
+
 ## [0.3.0] - 2026-10-09
 
 ### Added
