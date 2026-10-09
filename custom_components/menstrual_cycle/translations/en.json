@@ -36,19 +36,25 @@
           "period_length": "Usual period length",
           "luteal_phase": "Luteal phase length",
           "history_size": "Cycles used for the average",
-          "forecast_cycles": "Cycles to forecast"
+          "forecast_cycles": "Cycles to forecast",
+          "web_enabled": "Password-protected web page",
+          "web_password": "Web page password"
         },
         "data_description": {
           "cycle_length": "Used until at least two periods are logged.",
           "period_length": "Used until at least one period has an end date.",
           "luteal_phase": "Days between ovulation and the next period, usually 14. Refined automatically with the logged ovulations.",
           "history_size": "How many recent cycles are averaged to predict the next one.",
-          "forecast_cycles": "How many future cycles are shown in the calendar."
+          "forecast_cycles": "How many future cycles are shown in the calendar.",
+          "web_enabled": "A page with only the cycle, at /menstrual_cycle/view on your Home Assistant address, protected by its own password. Use an https address to open it from outside your home.",
+          "web_password": "At least 8 characters. Leave empty to keep the current password. Changing it signs out every open page."
         }
       }
     },
     "error": {
-      "luteal_too_long": "The luteal phase must be shorter than the cycle."
+      "luteal_too_long": "The luteal phase must be shorter than the cycle.",
+      "password_length": "The password must be 8 to 256 characters long.",
+      "password_required": "Set a password to enable the web page."
     }
   },
   "entity": {

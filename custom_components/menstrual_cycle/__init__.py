@@ -12,6 +12,7 @@ from .card import async_register_card
 from .const import DOMAIN, STORAGE_VERSION
 from .coordinator import MenstrualCycleConfigEntry, MenstrualCycleCoordinator, storage_key
 from .services import async_setup_services
+from .web import async_register_web
 
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.BUTTON, Platform.CALENDAR, Platform.SENSOR]
 
@@ -22,6 +23,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the integration services and the dashboard card."""
     async_setup_services(hass)
     await async_register_card(hass)
+    await async_register_web(hass)
     return True
 
 

@@ -188,6 +188,27 @@ class Prediction:
         return _margin(self.ovulation_sd)
 
 
+def card_attributes(prediction: Prediction) -> dict[str, object]:
+    """Describe the current cycle as day numbers, for the card and web page."""
+    cycle = prediction.current_cycle
+    start = prediction.last_period.start
+
+    def day(value: date) -> int:
+        return (value - start).days + 1
+
+    return {
+        "cycle_length": prediction.cycle_length,
+        "period_length": day(prediction.last_period.last_day(prediction.period_length)),
+        "fertile_start_day": day(cycle.fertile_start),
+        "ovulation_day": day(cycle.ovulation),
+        "fertile_end_day": day(cycle.fertile_end),
+        "ovulation_confirmed": cycle.ovulation_confirmed,
+        "phase": prediction.phase.value,
+        "next_period": prediction.next_period_start.isoformat(),
+        "days_until_next_period": prediction.days_until_next_period,
+    }
+
+
 def build_cycle(
     start: date,
     cycle_length: int,

@@ -17,7 +17,7 @@ from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .calculator import Phase, Prediction
+from .calculator import Phase, Prediction, card_attributes
 from .coordinator import MenstrualCycleConfigEntry, MenstrualCycleCoordinator
 from .entity import MenstrualCycleEntity
 
@@ -28,27 +28,6 @@ class MenstrualCycleSensorEntityDescription(SensorEntityDescription):
 
     value_fn: Callable[[Prediction], date | float | int | str | None]
     attributes_fn: Callable[[Prediction], dict[str, Any]] | None = None
-
-
-def _cycle_attributes(prediction: Prediction) -> dict[str, Any]:
-    """Describe the current cycle as day numbers, for the dashboard card."""
-    cycle = prediction.current_cycle
-    start = prediction.last_period.start
-
-    def day(value: date) -> int:
-        return (value - start).days + 1
-
-    return {
-        "cycle_length": prediction.cycle_length,
-        "period_length": day(prediction.last_period.last_day(prediction.period_length)),
-        "fertile_start_day": day(cycle.fertile_start),
-        "ovulation_day": day(cycle.ovulation),
-        "fertile_end_day": day(cycle.fertile_end),
-        "ovulation_confirmed": cycle.ovulation_confirmed,
-        "phase": prediction.phase.value,
-        "next_period": prediction.next_period_start.isoformat(),
-        "days_until_next_period": prediction.days_until_next_period,
-    }
 
 
 def _ovulation_attributes(prediction: Prediction) -> dict[str, Any]:
@@ -125,7 +104,7 @@ SENSORS: tuple[MenstrualCycleSensorEntityDescription, ...] = (
         key="cycle_day",
         translation_key="cycle_day",
         value_fn=lambda p: p.cycle_day,
-        attributes_fn=_cycle_attributes,
+        attributes_fn=card_attributes,
     ),
     MenstrualCycleSensorEntityDescription(
         key="last_period",

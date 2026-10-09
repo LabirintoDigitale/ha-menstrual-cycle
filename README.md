@@ -17,6 +17,7 @@ Integrazione personalizzata che tiene un **calendario del ciclo mestruale** in H
 - **Sensori binari**: *Mestruazioni* e *Finestra fertile*, comodi per le automazioni.
 - **Pulsanti**: *Ciclo iniziato oggi*, *Ciclo finito oggi*, *Ovulazione (test positivo)*, *Picco ovulazione (test)*.
 - **Azioni**: `menstrual_cycle.log_period_start`, `log_period_end`, `add_period`, `delete_period`, `log_ovulation`, `delete_ovulation`.
+- **Pagina web** a parte, protetta da password, con blocco dei tentativi.
 - **Statistiche**: fase luteale e follicolare personali, variabilità del ciclo e dell'ovulazione, storico degli ultimi 12 cicli.
 - Interfaccia in italiano e inglese. I dati restano solo nel tuo Home Assistant.
 
@@ -90,6 +91,23 @@ data:
   end: "2026-09-03"
 ```
 
+## Pagina web protetta da password
+
+Una pagina a parte, fuori dall'interfaccia di Home Assistant, con il gauge, le date del prossimo ciclo, l'ovulazione, la finestra fertile e i prossimi tre cicli. Utile per farla vedere a qualcuno senza dargli un account di Home Assistant.
+
+**Attivarla:** Impostazioni → Dispositivi e servizi → Menstrual Cycle → **Configura** → attiva *Pagina web protetta da password* e scegli una password di almeno 8 caratteri.
+
+**Indirizzo:** `http://<indirizzo di Home Assistant>:8123/menstrual_cycle/view` (o il tuo indirizzo https esterno seguito da `/menstrual_cycle/view`). Con la pagina disattivata l'indirizzo risponde "non trovato".
+
+**Sicurezza:**
+
+- la password non viene mai salvata: si salva solo il suo hash scrypt con un sale casuale;
+- dopo 5 password sbagliate dallo stesso indirizzo IP, quell'indirizzo è bloccato per 15 minuti; dopo 30 errori in totale (attacco da più indirizzi) si blocca ogni accesso per 15 minuti; ogni errore viene inoltre rallentato di un secondo;
+- i tentativi falliti passano dal sistema di Home Assistant: compare la notifica di accesso fallito e, se hai attivato `ip_ban_enabled` nella configurazione `http`, l'IP viene bannato;
+- la sessione è un cookie casuale `HttpOnly` e `SameSite=Strict`, dura 12 ore e si chiude cambiando la password o premendo *Esci*;
+- la pagina ha una Content-Security-Policy restrittiva (niente script esterni, non incorporabile in altri siti), non viene salvata in cache e non viene indicizzata;
+- su `http` la pagina avvisa che la password viaggia in chiaro: per aprirla da fuori casa usa **https** (Home Assistant Cloud, un tuo dominio con certificato o un reverse proxy).
+
 ## Card del ciclo
 
 Modifica la dashboard → **Aggiungi card** → cerca **Ciclo mestruale** (o *Menstrual Cycle*): compare con l'anteprima e si configura dall'editor visuale. In YAML:
@@ -160,6 +178,8 @@ It includes a **dashboard card** (`custom:menstrual-cycle-card`, listed in the c
 The cycle length is the average of the last N logged cycles (6 by default, gaps outside 15–60 days are ignored). Ovulation is estimated as the next period minus the personal luteal phase; the fertile window spans the 5 days before ovulation to the day after, widened when past cycles are irregular.
 
 You can also log ovulation (buttons *Ovulation (positive test)*, estimated the next day, and *Ovulation peak (test)*, estimated the same day, or the `log_ovulation` action with date and method). Since the luteal phase varies less than the follicular phase within a woman, the logged ovulations are used to learn the personal luteal phase (shrunk towards the configured value while data is scarce); once the current cycle's ovulation is logged, the next period is predicted from it. Sensors expose the personal luteal and follicular phase, cycle and ovulation variability (standard deviation) and the last 12 cycles, with long-term statistics.
+
+An optional **password-protected web page** at `/menstrual_cycle/view` (enable it and set its password in the integration options) shows the gauge and the upcoming dates outside the Home Assistant UI. The password is stored as a salted scrypt hash; 5 wrong passwords lock an IP address for 15 minutes and 30 lock all logins; failures go through Home Assistant's failed-login handling (notification and IP ban if enabled); sessions are random `HttpOnly`, `SameSite=Strict` cookies lasting 12 hours; the page has a strict Content-Security-Policy. Use https to open it from outside your home.
 
 Install via HACS as a custom repository (category *Integration*) or copy `custom_components/menstrual_cycle` into your `config/custom_components` folder, restart, then add **Menstrual Cycle** from *Settings → Devices & services*.
 

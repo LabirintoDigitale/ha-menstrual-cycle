@@ -15,11 +15,14 @@ from homeassistant.config_entries import (
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 from homeassistant.helpers.selector import (
+    BooleanSelector,
     DateSelector,
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
     TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
 )
 
 from .const import (
@@ -29,8 +32,22 @@ from .const import (
     CONF_LAST_PERIOD,
     CONF_LUTEAL_PHASE,
     CONF_PERIOD_LENGTH,
+    CONF_WEB_ENABLED,
+    CONF_WEB_PASSWORD,
+    CONF_WEB_PASSWORD_HASH,
+    CONF_WEB_PASSWORD_SALT,
     DEFAULTS,
     DOMAIN,
+)
+from .security import MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, new_password_hash
+
+WEB_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_WEB_ENABLED, default=False): BooleanSelector(),
+        vol.Optional(CONF_WEB_PASSWORD): TextSelector(
+            TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="new-password")
+        ),
+    }
 )
 
 
@@ -111,18 +128,48 @@ class MenstrualCycleOptionsFlow(OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Manage the settings."""
+        """Manage the settings and the web page."""
         errors: dict[str, str] = {}
         if user_input is not None:
             settings, errors = _clean_settings(user_input)
+            web, web_errors = await self._web_options(user_input)
+            errors.update(web_errors)
             if not errors:
-                return self.async_create_entry(data=settings)
+                return self.async_create_entry(data={**settings, **web})
 
         current = {**DEFAULTS, **self.config_entry.data, **self.config_entry.options}
+        # Never send the password (or its hash) back to the form.
+        suggested = {k: v for k, v in (user_input or current).items() if k != CONF_WEB_PASSWORD}
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
-                SETTINGS_SCHEMA, user_input or current
+                SETTINGS_SCHEMA.extend(WEB_SCHEMA.schema), suggested
             ),
             errors=errors,
         )
+
+    async def _web_options(
+        self, user_input: dict[str, Any]
+    ) -> tuple[dict[str, Any], dict[str, str]]:
+        """Hash a new password, or keep the current one when left empty."""
+        enabled = bool(user_input.get(CONF_WEB_ENABLED))
+        password = user_input.get(CONF_WEB_PASSWORD) or ""
+        current = self.config_entry.options
+        web: dict[str, Any] = {CONF_WEB_ENABLED: enabled}
+        if password:
+            if not MIN_PASSWORD_LENGTH <= len(password) <= MAX_PASSWORD_LENGTH:
+                return web, {CONF_WEB_PASSWORD: "password_length"}
+            password_hash, salt = await self.hass.async_add_executor_job(
+                new_password_hash, password
+            )
+            web.update({CONF_WEB_PASSWORD_HASH: password_hash, CONF_WEB_PASSWORD_SALT: salt})
+        elif current.get(CONF_WEB_PASSWORD_HASH):
+            web.update(
+                {
+                    CONF_WEB_PASSWORD_HASH: current[CONF_WEB_PASSWORD_HASH],
+                    CONF_WEB_PASSWORD_SALT: current[CONF_WEB_PASSWORD_SALT],
+                }
+            )
+        elif enabled:
+            return web, {CONF_WEB_PASSWORD: "password_required"}
+        return web, {}

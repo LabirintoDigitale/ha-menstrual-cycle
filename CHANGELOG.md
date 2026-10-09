@@ -4,6 +4,17 @@ All notable changes to **Menstrual Cycle for Home Assistant** are documented her
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-09
+
+### Added
+
+- **Password-protected web page** at `/menstrual_cycle/view`, outside the Home Assistant UI: the cycle gauge, next period, ovulation, fertile window and the next three cycles. Enabled, with its own password, in the integration options.
+  - Password stored as a salted scrypt hash, never in clear.
+  - 5 wrong passwords lock the IP address for 15 minutes, 30 lock all logins; attempts are counted before the password check, so parallel requests can't bypass the limit; each failure is delayed by one second.
+  - Failed logins go through Home Assistant's own handling (notification, IP ban when `ip_ban_enabled` is set).
+  - Session: random `HttpOnly`, `SameSite=Strict` cookie scoped to the page, 12 hours; changing the password ends all sessions.
+  - Strict Content-Security-Policy with a per-response script nonce, `frame-ancestors 'none'`, `no-store`, `noindex`; JSON-only login (no cross-site form posts); warning when opened over plain http.
+
 ## [0.4.1] - 2026-10-09
 
 ### Changed

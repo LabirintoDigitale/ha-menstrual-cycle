@@ -36,19 +36,25 @@
           "period_length": "Durata abituale delle mestruazioni",
           "luteal_phase": "Durata della fase luteale",
           "history_size": "Cicli usati per la media",
-          "forecast_cycles": "Cicli da prevedere"
+          "forecast_cycles": "Cicli da prevedere",
+          "web_enabled": "Pagina web protetta da password",
+          "web_password": "Password della pagina web"
         },
         "data_description": {
           "cycle_length": "Usata finché non ci sono almeno due cicli registrati.",
           "period_length": "Usata finché nessun ciclo ha una data di fine.",
           "luteal_phase": "Giorni tra l'ovulazione e il ciclo successivo, di solito 14. Si affina da sola con le ovulazioni registrate.",
           "history_size": "Quanti cicli recenti vengono mediati per prevedere il prossimo.",
-          "forecast_cycles": "Quanti cicli futuri mostrare nel calendario."
+          "forecast_cycles": "Quanti cicli futuri mostrare nel calendario.",
+          "web_enabled": "Una pagina con solo il ciclo, all'indirizzo /menstrual_cycle/view del tuo Home Assistant, protetta da una sua password. Da fuori casa aprila con un indirizzo https.",
+          "web_password": "Almeno 8 caratteri. Lascia vuoto per mantenere quella attuale. Cambiandola si chiudono tutte le pagine aperte."
         }
       }
     },
     "error": {
-      "luteal_too_long": "La fase luteale deve essere più corta del ciclo."
+      "luteal_too_long": "La fase luteale deve essere più corta del ciclo.",
+      "password_length": "La password deve avere da 8 a 256 caratteri.",
+      "password_required": "Imposta una password per attivare la pagina web."
     }
   },
   "entity": {

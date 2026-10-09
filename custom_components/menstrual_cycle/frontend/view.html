@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Ciclo</title>
+<style>
+  :root {
+    --primary-text-color: #212121;
+    --secondary-text-color: #6f6f6f;
+    --divider-color: #e3e3e3;
+    --card-background-color: #ffffff;
+    --page-bg: #fbf6f8;
+    --accent: #e91e63;
+    --accent-text: #ffffff;
+    --error: #c62828;
+    --warn-bg: #fff4e5;
+    --warn-text: #8a4b00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary-text-color: #ececec;
+      --secondary-text-color: #a3a3a3;
+      --divider-color: #333;
+      --card-background-color: #1d1d1f;
+      --page-bg: #121214;
+      --warn-bg: #3a2a12;
+      --warn-text: #ffcc80;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--page-bg); color: var(--primary-text-color);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.4;
+    display: flex; justify-content: center; padding: 24px 16px;
+  }
+  main { width: 100%; max-width: 420px; }
+  h1 { font-size: 1.3rem; font-weight: 600; margin: 0 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .panel { background: var(--card-background-color); border-radius: 16px; padding: 20px; box-shadow: 0 0 0 1px var(--divider-color); }
+  form { display: grid; gap: 12px; }
+  label { font-size: 0.9rem; color: var(--secondary-text-color); }
+  input[type=password] {
+    width: 100%; padding: 12px; font-size: 1rem; border-radius: 10px;
+    border: 1px solid var(--divider-color); background: transparent; color: inherit;
+  }
+  input[type=password]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button {
+    padding: 12px; font-size: 1rem; font-weight: 600; border: 0; border-radius: 10px;
+    background: var(--accent); color: var(--accent-text); cursor: pointer;
+  }
+  button:disabled { opacity: 0.6; cursor: default; }
+  button.link { background: none; color: var(--secondary-text-color); font-weight: 500; padding: 4px 0; font-size: 0.9rem; }
+  .error { color: var(--error); font-size: 0.9rem; min-height: 1.2em; margin: 0; }
+  .warn { background: var(--warn-bg); color: var(--warn-text); border-radius: 10px; padding: 10px 12px; font-size: 0.85rem; margin-bottom: 16px; }
+  .details { margin-top: 16px; display: grid; gap: 8px; }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--divider-color); }
+  .row:last-child { border-bottom: 0; }
+  .row span:first-child { color: var(--secondary-text-color); }
+  .row span:last-child { text-align: right; font-weight: 500; }
+  h2 { font-size: 1rem; margin: 20px 0 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 8px 4px; border-bottom: 1px solid var(--divider-color); }
+  th { color: var(--secondary-text-color); font-weight: 500; }
+  .note { color: var(--secondary-text-color); font-size: 0.8rem; margin-top: 16px; }
+  .empty { text-align: center; color: var(--secondary-text-color); padding: 24px 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div id="insecure" class="warn" hidden></div>
+
+  <section id="login" class="panel" hidden>
+    <h1 id="login-title"></h1>
+    <form id="login-form" autocomplete="on">
+      <label for="password" id="password-label"></label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="256">
+      <button id="login-button" type="submit"></button>
+      <p id="login-error" class="error" role="alert"></p>
+    </form>
+  </section>
+
+  <section id="app" hidden>
+    <h1><span id="title"></span><button id="logout" class="link" type="button"></button></h1>
+    <div id="card"></div>
+    <div id="empty" class="panel empty" hidden></div>
+    <div id="details" class="panel details" hidden></div>
+    <p id="disclaimer" class="note"></p>
+  </section>
+</main>
+
+<script type="module" src="/menstrual_cycle/menstrual-cycle-card.js" nonce="{{NONCE}}"></script>
+<script type="module" nonce="{{NONCE}}">
+const API = "/menstrual_cycle/view/api";
+
+// The card renders inside <ha-card>, which only exists in Home Assistant's UI.
+if (!customElements.get("ha-card")) {
+  customElements.define("ha-card", class extends HTMLElement {
+    connectedCallback() {
+      Object.assign(this.style, {
+        display: "block",
+        background: "var(--card-background-color)",
+        borderRadius: "16px",
+        boxShadow: "0 0 0 1px var(--divider-color)",
+      });
+    }
+  });
+}
+const T = {
+  it: {
+    title: "Ciclo", password: "Password", login: "Entra", logout: "Esci",
+    wrong: "Password errata.", locked: (m) => `Troppi tentativi. Riprova tra ${m} minut${m === 1 ? "o" : "i"}.`,
+    error: "Errore di connessione, riprova.",
+    insecure: "Connessione non cifrata (http): la password viaggia in chiaro. Da fuori casa usa un indirizzo https.",
+    next: "Prossimo ciclo", ovulation: "Ovulazione", fertile: "Finestra fertile", length: "Durata media del ciclo",
+    confirmed: "confermata", estimated: "stimata", days: (n) => `${n} giorni`,
+    in: (n) => (n === 0 ? "oggi" : n === 1 ? "domani" : n < 0 ? `in ritardo di ${-n} g` : `tra ${n} giorni`),
+    upcoming: "Prossimi cicli", period: "Ciclo",
+    empty: "Nessun ciclo registrato.",
+    disclaimer: "Stime basate sui cicli registrati: non sono un parere medico e non vanno usate come contraccezione.",
+  },
+  en: {
+    title: "Cycle", password: "Password", login: "Sign in", logout: "Sign out",
+    wrong: "Wrong password.", locked: (m) => `Too many attempts. Try again in ${m} minute${m === 1 ? "" : "s"}.`,
+    error: "Connection error, try again.",
+    insecure: "Unencrypted connection (http): the password is sent in clear. Use an https address from outside your home.",
+    next: "Next period", ovulation: "Ovulation", fertile: "Fertile window", length: "Average cycle length",
+    confirmed: "confirmed", estimated: "estimated", days: (n) => `${n} days`,
+    in: (n) => (n === 0 ? "today" : n === 1 ? "tomorrow" : n < 0 ? `${-n} d late` : `in ${n} days`),
+    upcoming: "Upcoming cycles", period: "Period",
+    empty: "No period logged.",
+    disclaimer: "Estimates based on the logged cycles: not medical advice, not to be used as contraception.",
+  },
+};
+let lang = (navigator.language || "en").slice(0, 2);
+const t = () => T[lang] || T.en;
+const $ = (id) => document.getElementById(id);
+
+function fmt(iso, opts = { day: "numeric", month: "short" }) {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString(lang, opts);
+}
+
+function row(label, value) {
+  const div = document.createElement("div");
+  div.className = "row";
+  const a = document.createElement("span");
+  const b = document.createElement("span");
+  a.textContent = label;
+  b.textContent = value;
+  div.append(a, b);
+  return div;
+}
+
+function showLogin(message = "") {
+  $("app").hidden = true;
+  $("login").hidden = false;
+  $("login-title").textContent = t().title;
+  $("password-label").textContent = t().password;
+  $("login-button").textContent = t().login;
+  $("login-error").textContent = message;
+  $("password").focus();
+}
+
+function render(data) {
+  lang = (data.language || lang).slice(0, 2);
+  document.documentElement.lang = lang;
+  document.title = data.title || t().title;
+  $("login").hidden = true;
+  $("app").hidden = false;
+  $("title").textContent = data.title || t().title;
+  $("logout").textContent = t().logout;
+  $("disclaimer").textContent = t().disclaimer;
+
+  if (!data.cycle) {
+    $("card").replaceChildren();
+    $("details").hidden = true;
+    $("empty").hidden = false;
+    $("empty").textContent = t().empty;
+    return;
+  }
+  $("empty").hidden = true;
+
+  let card = $("card").firstElementChild;
+  if (!card) {
+    card = document.createElement("menstrual-cycle-card");
+    card.setConfig({ type: "custom:menstrual-cycle-card", entity: "sensor.cycle", show_next: false });
+    $("card").append(card);
+  }
+  card.hass = {
+    language: lang,
+    locale: { language: lang },
+    entities: {},
+    states: { "sensor.cycle": { entity_id: "sensor.cycle", state: String(data.cycle.state), attributes: data.cycle.attributes } },
+  };
+
+  const d = $("details");
+  d.hidden = false;
+  d.replaceChildren(
+    row(t().next, `${fmt(data.next_period, { weekday: "short", day: "numeric", month: "short" })} · ${t().in(data.days_until_next_period)}`),
+    row(t().ovulation, `${fmt(data.ovulation)} · ${data.ovulation_confirmed ? t().confirmed : t().estimated}`),
+    row(t().fertile, `${fmt(data.fertile_start)} – ${fmt(data.fertile_end)}`),
+    row(t().length, t().days(data.cycle_length)),
+  );
+
+  const h2 = document.createElement("h2");
+  h2.textContent = t().upcoming;
+  const table = document.createElement("table");
+  const head = table.createTHead().insertRow();
+  for (const label of [t().period, t().fertile, t().ovulation]) {
+    const th = document.createElement("th");
+    th.textContent = label;
+    head.append(th);
+  }
+  const body = table.createTBody();
+  for (const c of data.upcoming) {
+    const r = body.insertRow();
+    r.insertCell().textContent = fmt(c.period_start);
+    r.insertCell().textContent = `${fmt(c.fertile_start)} – ${fmt(c.fertile_end)}`;
+    r.insertCell().textContent = fmt(c.ovulation);
+  }
+  d.append(h2, table);
+}
+
+async function load() {
+  try {
+    const response = await fetch(`${API}/data`, { credentials: "same-origin", cache: "no-store" });
+    if (response.status === 401) return showLogin();
+    if (!response.ok) throw new Error(response.status);
+    render(await response.json());
+  } catch {
+    if (!$("app").hidden) return; // keep showing the last data
+    showLogin(t().error);
+  }
+}
+
+$("login-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = $("login-button");
+  button.disabled = true;
+  $("login-error").textContent = "";
+  try {
+    const response = await fetch(`${API}/login`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: $("password").value }),
+    });
+    if (response.ok) {
+      $("password").value = "";
+      await load();
+    } else if (response.status === 429) {
+      const body = await response.json().catch(() => ({}));
+      $("login-error").textContent = t().locked(Math.max(1, Math.ceil((body.retry_after || 60) / 60)));
+    } else {
+      $("login-error").textContent = t().wrong;
+      $("password").select();
+    }
+  } catch {
+    $("login-error").textContent = t().error;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+$("logout").addEventListener("click", async () => {
+  await fetch(`${API}/logout`, { method: "POST", credentials: "same-origin" }).catch(() => {});
+  showLogin();
+});
+
+const local = ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
+if (location.protocol !== "https:" && !local) {
+  $("insecure").hidden = false;
+  $("insecure").textContent = t().insecure;
+}
+
+await customElements.whenDefined("menstrual-cycle-card").catch(() => {});
+await load();
+setInterval(() => { if (!$("app").hidden) load(); }, 10 * 60 * 1000);
+</script>
+</body>
+</html>

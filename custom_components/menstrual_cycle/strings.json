@@ -36,19 +36,25 @@
           "period_length": "[%key:component::menstrual_cycle::config::step::user::data::period_length%]",
           "luteal_phase": "[%key:component::menstrual_cycle::config::step::user::data::luteal_phase%]",
           "history_size": "[%key:component::menstrual_cycle::config::step::user::data::history_size%]",
-          "forecast_cycles": "[%key:component::menstrual_cycle::config::step::user::data::forecast_cycles%]"
+          "forecast_cycles": "[%key:component::menstrual_cycle::config::step::user::data::forecast_cycles%]",
+          "web_enabled": "Password-protected web page",
+          "web_password": "Web page password"
         },
         "data_description": {
           "cycle_length": "[%key:component::menstrual_cycle::config::step::user::data_description::cycle_length%]",
           "period_length": "[%key:component::menstrual_cycle::config::step::user::data_description::period_length%]",
           "luteal_phase": "[%key:component::menstrual_cycle::config::step::user::data_description::luteal_phase%]",
           "history_size": "[%key:component::menstrual_cycle::config::step::user::data_description::history_size%]",
-          "forecast_cycles": "[%key:component::menstrual_cycle::config::step::user::data_description::forecast_cycles%]"
+          "forecast_cycles": "[%key:component::menstrual_cycle::config::step::user::data_description::forecast_cycles%]",
+          "web_enabled": "A page with only the cycle, at /menstrual_cycle/view on your Home Assistant address, protected by its own password. Use an https address to open it from outside your home.",
+          "web_password": "At least 8 characters. Leave empty to keep the current password. Changing it signs out every open page."
         }
       }
     },
     "error": {
-      "luteal_too_long": "[%key:component::menstrual_cycle::config::error::luteal_too_long%]"
+      "luteal_too_long": "[%key:component::menstrual_cycle::config::error::luteal_too_long%]",
+      "password_length": "The password must be 8 to 256 characters long.",
+      "password_required": "Set a password to enable the web page."
     }
   },
   "entity": {

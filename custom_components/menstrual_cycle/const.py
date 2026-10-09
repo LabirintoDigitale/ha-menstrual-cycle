@@ -10,6 +10,10 @@ CONF_LUTEAL_PHASE: Final = "luteal_phase"
 CONF_HISTORY_SIZE: Final = "history_size"
 CONF_FORECAST_CYCLES: Final = "forecast_cycles"
 CONF_LAST_PERIOD: Final = "last_period_start"
+CONF_WEB_ENABLED: Final = "web_enabled"
+CONF_WEB_PASSWORD: Final = "web_password"
+CONF_WEB_PASSWORD_HASH: Final = "web_password_hash"
+CONF_WEB_PASSWORD_SALT: Final = "web_password_salt"
 
 DEFAULT_CYCLE_LENGTH: Final = 28
 DEFAULT_PERIOD_LENGTH: Final = 5
