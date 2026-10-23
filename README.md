@@ -186,3 +186,7 @@ Install via HACS as a custom repository (category *Integration*) or copy `custom
 ## License
 
 [MIT](LICENSE)
+
+---
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W4M829BGBC)
